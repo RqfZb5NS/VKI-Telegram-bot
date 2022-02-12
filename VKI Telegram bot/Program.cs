@@ -15,20 +15,11 @@ foreach (var i in sgroup.returned)
     Console.WriteLine($"{ i[0] }\n{ i[1] }");
 }
 Console.WriteLine("\n");
-foreach(var i in cschedule.doc.DocumentNode.SelectSingleNode(".//table[@class='table']").SelectNodes(".//tr"))
+foreach(var i in cschedule.returned)
 {
-    try 
+    foreach (var j in i)
     {
-        foreach (var j in i.SelectNodes(".//th"))
-        {
-            Console.WriteLine(j.GetAttributeValue("p", ""));
-        }
+        Console.Write($"{j} ");
     }
-    catch (Exception ex)
-    {
-        foreach (var j in i.SelectNodes(".//td"))
-        {
-            Console.WriteLine(j.GetAttributeValue("p", ""));
-        }
-    }
+    Console.WriteLine();
 }
