@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace VKI_Telegram_bot.Parsers.ci.nsu.ru_parsers
 {
-    public class Timetable : Parser
+    public class PDFP : Parser
     {
         public List<string[]> returned = new List<string[]>();
-        public Timetable(string url = "https://ci.nsu.ru/education/schedule/") : base(url)
+        public PDFP(string url) : base(url)
         {
             updater();
         }
