@@ -11,5 +11,4 @@ foreach (var i in timetable.returned)
 foreach (var i in sgroup.returned)
 {
     Console.WriteLine($"{ i[0] }\n{ i[1] }");
-    Console.WriteLine();
 }
