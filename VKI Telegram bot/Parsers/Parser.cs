@@ -4,9 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace VKI_Telegram_bot.Core.Parsers
+namespace VKI_Telegram_bot.Parsers
 {
-    internal class Page
+    public abstract class Parser
     {
+
     }
 }
