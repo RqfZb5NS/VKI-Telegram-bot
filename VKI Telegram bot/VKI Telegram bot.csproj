@@ -12,8 +12,4 @@
     <PackageReference Include="HtmlAgilityPack" Version="1.11.42" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Parsers\ci.nsu.ru parser\" />
-  </ItemGroup>
-
 </Project>
