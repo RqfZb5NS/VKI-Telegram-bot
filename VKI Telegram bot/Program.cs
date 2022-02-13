@@ -1,6 +1,7 @@
 ﻿using Microsoft.Data.Sqlite;
 using VKI_Telegram_bot.Parsers;
 using VKI_Telegram_bot.Parsers.ci.nsu.ru_parsers;
+using VKI_Telegram_bot.DB;
 
 //var timetable = new PDFP("https://ci.nsu.ru/education/schedule/");
 //var sgroup = new PDFP("https://ci.nsu.ru/education/spisok-uchebnykh-grupp/");
@@ -29,15 +30,10 @@ using VKI_Telegram_bot.Parsers.ci.nsu.ru_parsers;
 //{
 //    Console.WriteLine($"{ i[0] }\n{ i[1] }");
 //}
-using (var connection = new SqliteConnection("Data Source=DataBase.db"))
-{
-    connection.Open();
-
-    SqliteCommand command = new SqliteCommand();
-    command.Connection = connection;
-    command.CommandText = "INSERT INTO Users (id, admin, name) VALUES (1, 1, 'Вова')";
-    int number = command.ExecuteNonQuery();
-
-    Console.WriteLine($"В таблицу Users добавлено объектов: {number}");
-}
-Console.Read();
+//var usertable = new UsersTable();
+//usertable.DelUser(2);
+//foreach (var i in usertable.GetUserList())
+//{
+//    Console.WriteLine($"{i[0]} {i[1]}");
+//}
+//Console.Read();
