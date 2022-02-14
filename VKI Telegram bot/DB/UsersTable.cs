@@ -1,55 +1,33 @@
-﻿using Microsoft.Data.Sqlite;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace VKI_Telegram_bot.DB
+﻿namespace VKI_Telegram_bot.DB
 {
-    public class UsersTable
+    public class UsersTable : Table
     {
-        string dblocation = "Data Source=DB/DataBase.db";
+        public List<int[]> list = new List<int[]>();
+        public string tablename = "Users";
+        public UsersTable()
+        {
+            UpdateUserList();
+        }
         public void AddUser(int id, int admin = 0, string name = "")
         {
-            using (var connection = new SqliteConnection(dblocation))
-            {
-                SqliteCommand Command = new SqliteCommand($"INSERT INTO Users(id, admin, name) VALUES({id}, {admin}, '{name}')", connection);
-                connection.Open(); // открыть соединение
-                Command.ExecuteNonQuery(); // выполнить запрос
-                connection.Close();
-            }
+            Command($"INSERT INTO {tablename}(id, admin, name) VALUES({id}, {admin}, '{name}')");
         }
         public void DelUser(int id)
         {
-            using (var connection = new SqliteConnection(dblocation))
-            {
-                SqliteCommand Command = new SqliteCommand($"DELETE FROM Users WHERE id = {id}", connection);
-                connection.Open(); // открыть соединение
-                Command.ExecuteNonQuery(); // выполнить запрос
-                connection.Close();
-            }
+            Command($"DELETE FROM {tablename} WHERE id = {id}");
         }
-        public List<int[]> GetUserList()
+        public List<int[]> UpdateUserList()
         {
-            List<int[]> list = new List<int[]>();
-            using (var connection = new SqliteConnection(dblocation))
+            list.Clear();
+            var reader = Read(tablename);
+            if (reader.HasRows)
             {
-                connection.Open();
-                SqliteCommand command = new SqliteCommand("SELECT * FROM Users", connection);
-                using (SqliteDataReader reader = command.ExecuteReader())
+                while (reader.Read())   // построчно считываем данные
                 {
-                    if (reader.HasRows)
-                    {
-                        while (reader.Read())   // построчно считываем данные
-                        {
-                            list.Add(new int[] { Convert.ToInt32(reader.GetValue(0)), Convert.ToInt32(reader.GetValue(1))});
-                        }
-                    }
+                    list.Add(new int[] { Convert.ToInt32(reader.GetValue(0)), Convert.ToInt32(reader.GetValue(1))});
                 }
             }
             return list;
         }
-
     }
 }

@@ -1,19 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace VKI_Telegram_bot.Parsers.ci.nsu.ru_parsers
+﻿namespace VKI_Telegram_bot.Parsers.ci.nsu.ru_parsers
 {
     public class CSchedule : Parser
     {
         public List<List<string>> list = new List<List<string>>();
         public CSchedule(string url = "https://ci.nsu.ru/education/raspisanie-zvonkov/") : base(url)
         {
-            updater();
+            Updater();
         }
-        public void updater()
+        public void Updater()
         {
             list.Clear();
             int ctr = 0;

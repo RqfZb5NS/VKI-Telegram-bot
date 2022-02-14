@@ -1,20 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using VKI_Telegram_bot.DB;
 
 namespace VKI_Telegram_bot.Parsers
 {
-    public class Parser
+    public class Parser : Table
     {
         public string html = string.Empty;
         public HtmlAgilityPack.HtmlDocument doc = new HtmlAgilityPack.HtmlDocument();
         public Parser(string url)
         {
-            getdoc(url);
+            GetDoc(url);
         }
-        private void gethtml(string url)
+        private void GetHtml(string url)
         {
             try
             {
@@ -38,9 +34,9 @@ namespace VKI_Telegram_bot.Parsers
             }
             catch (Exception ex) { Console.WriteLine(ex.Message); return; }
         }
-        public HtmlAgilityPack.HtmlDocument getdoc(string url)
+        public HtmlAgilityPack.HtmlDocument GetDoc(string url)
         {
-            gethtml(url);
+            GetHtml(url);
             doc.LoadHtml(html);
             return doc;
         }
