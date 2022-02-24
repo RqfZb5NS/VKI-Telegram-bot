@@ -5,9 +5,9 @@
         public List<List<string>> list = new List<List<string>>();
         public CSchedule(string url = "https://ci.nsu.ru/education/raspisanie-zvonkov/") : base(url)
         {
-            Updater();
+            _ = Update(new List<List<string>>());
         }
-        public void Updater()
+        public bool Update(List<List<string>> list2)
         {
             list.Clear();
             int ctr = 0;
@@ -20,6 +20,25 @@
                 }
                 ctr++;
             }
+            if (list.Count == list2.Count && list[0].Count == list2[0].Count)
+            {
+                for (int i = 0; i < list.Count; i++)
+                {
+                    for (int j = 0; j < list[i].Count; j++)
+                    {
+                        if (list[i][j] != list2[i][j])
+                        {
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            }
+            else
+            {
+                return true;
+            }
         }
+
     }
 }

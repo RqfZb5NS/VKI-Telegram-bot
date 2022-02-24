@@ -1,8 +1,6 @@
-﻿using VKI_Telegram_bot.DB;
-
-namespace VKI_Telegram_bot.Parsers
+﻿namespace VKI_Telegram_bot.Parsers
 {
-    public class Parser : Table
+    public class Parser
     {
         public string html = string.Empty;
         public HtmlAgilityPack.HtmlDocument doc = new HtmlAgilityPack.HtmlDocument();

@@ -1,75 +1,41 @@
-﻿using System.Linq;
-
-namespace VKI_Telegram_bot.Parsers.ci.nsu.ru_parsers
+﻿namespace VKI_Telegram_bot.Parsers.ci.nsu.ru_parsers
 {
     public class PDFP : Parser
     {
-        public List<string[]> list = new List<string[]>();
-        public string tablename = string.Empty;
-        public PDFP(string url, string tn) : base(url)
+        public List<List<string>> list = new();
+        public PDFP(string url) : base(url)
         {
-            tablename = tn;
+            _ = Update(new List<List<string>>());
+        }
+        public bool Update(List<List<string>> list2)
+        {
+            list.Clear();
             foreach (HtmlAgilityPack.HtmlNode i in doc.DocumentNode.SelectNodes(".//div[@class='file-div']"))
             {
                 string name = i.SelectSingleNode(".//div[@class='file-name']").InnerText.Trim();
                 string href = "https://ci.nsu.ru" + i.SelectSingleNode(".//a").GetAttributeValue("href", "");
-                list.Add(new string[] { name, href });
+                list.Add(new List<string> { name, href });
+
             }
-        }
-        public bool Updater()
-        {
-            list.Clear();
-            var reader = Read(tablename);
-            if (reader.HasRows)
+            //return list.SequenceEqual(list2);
+            if (list.Count == list2.Count)
             {
-                List<string[]> listbd = new List<string[]>();
-                while (reader.Read())   // построчно считываем данные
+                for (int i = 0; i < list.Count; i++)
                 {
-                    listbd.Add(new string[] { reader.GetValue(0).ToString(), reader.GetValue(1).ToString() });
-                }
-                foreach (HtmlAgilityPack.HtmlNode i in doc.DocumentNode.SelectNodes(".//div[@class='file-div']"))
-                {
-                    string name = i.SelectSingleNode(".//div[@class='file-name']").InnerText.Trim();
-                    string href = "https://ci.nsu.ru" + i.SelectSingleNode(".//a").GetAttributeValue("href", "");
-                    list.Add(new string[] { name, href });
-                }
-                if (listbd.SequenceEqual(list))
-                {
-                    list = new List<string[]>(listbd);
-                    return false;
-                }
-                else
-                {
-                    TableClear();
-                    foreach (HtmlAgilityPack.HtmlNode i in doc.DocumentNode.SelectNodes(".//div[@class='file-div']"))
+                    for (int j = 0; j < 2; j++)
                     {
-                        string name = i.SelectSingleNode(".//div[@class='file-name']").InnerText.Trim();
-                        string href = "https://ci.nsu.ru" + i.SelectSingleNode(".//a").GetAttributeValue("href", "");
-                        AddElement(name, href);
-                        list.Add(new string[] { name, href });
+                        if (list[i][j] != list2[i][j])
+                        {
+                            return true;
+                        }
                     }
-                    return true;
                 }
+                return false;
             }
             else
             {
-                foreach (HtmlAgilityPack.HtmlNode i in doc.DocumentNode.SelectNodes(".//div[@class='file-div']"))
-                {
-                    string name = i.SelectSingleNode(".//div[@class='file-name']").InnerText.Trim();
-                    string href = "https://ci.nsu.ru" + i.SelectSingleNode(".//a").GetAttributeValue("href", "");
-                    AddElement(name, href);
-                    list.Add(new string[] { name, href });
-                }
                 return true;
             }
-        }
-        public void AddElement(string name, string data)
-        {
-            Command($"INSERT INTO {tablename}(name, data) VALUES('{name}', '{data}')");
-        }
-        public void TableClear()
-        {
-            TableClear(tablename);
         }
     }
 }
