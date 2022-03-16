@@ -2,6 +2,13 @@
 using VKI_Telegram_bot.Parsers;
 using VKI_Telegram_bot.Parsers.ci.nsu.ru_parsers;
 using VKI_Telegram_bot.DB;
+using Microsoft.Extensions.Configuration;
+
+var builder = new ConfigurationBuilder(); // установка пути к текущему каталогу
+builder.SetBasePath(Directory.GetCurrentDirectory()); // получаем конфигурацию из файла appsettings.json
+builder.AddJsonFile("appsettings.json"); // создаем конфигурацию
+var config = builder.Build(); // получаем строку подключения
+//Console.WriteLine(config.GetSection("TG").GetSection("Key").Value);
 
 var timetable = new PDFP("https://ci.nsu.ru/education/schedule/");
 //var sgroup = new PDFP("https://ci.nsu.ru/education/spisok-uchebnykh-grupp/");
