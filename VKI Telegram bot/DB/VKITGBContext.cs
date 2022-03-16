@@ -10,6 +10,10 @@ namespace VKI_Telegram_bot.DB
     internal class VKITGBContext : DbContext
     {
         public DbSet<User> Users { get; set; }
+        public DbSet<PDFPEntity> Timetables { get; set; }
+        public DbSet<PDFPEntity> Sgroups { get; set; }
+        public DbSet<PDFPEntity> Iertifications { get; set; }
+        
 
         public VKITGBContext()
         {
