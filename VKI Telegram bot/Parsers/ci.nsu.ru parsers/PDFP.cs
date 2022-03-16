@@ -3,10 +3,8 @@
     public class PDFP : Parser
     {
         public List<List<string>> list = new();
-        string name = null;
-        public PDFP(string url, string _name) : base(url)
+        public PDFP(string url) : base(url)
         {
-            name = _name;
             _ = Update(new List<List<string>>());
         }
         public bool Update(List<List<string>> list2)

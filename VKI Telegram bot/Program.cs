@@ -9,7 +9,6 @@ builder.SetBasePath(Directory.GetCurrentDirectory()); // получаем кон
 builder.AddJsonFile("appsettings.json"); // создаем конфигурацию
 var config = builder.Build(); // получаем строку подключения
 //Console.WriteLine(config.GetSection("TG").GetSection("Key").Value);
-
 var timetable = new PDFP("https://ci.nsu.ru/education/schedule/");
 //var sgroup = new PDFP("https://ci.nsu.ru/education/spisok-uchebnykh-grupp/");
 //PDFP iertification = new PDFP("https://ci.nsu.ru/education/raspisanie-ekzamenov/", "Iertifications");
