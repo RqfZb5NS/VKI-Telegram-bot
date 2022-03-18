@@ -10,11 +10,23 @@ builder.AddJsonFile("appsettings.json"); // создаем конфигурац�
 var config = builder.Build(); // получаем строку подключения
 //Console.WriteLine(config.GetSection("TG").GetSection("Key").Value);
 
-var timetable = new Timetable();
-Console.WriteLine(timetable.Update());
-foreach (var i in timetable.list)
+//var timetable = new Timetables();
+//Console.WriteLine(timetable.Update());
+
+//var iertification = new Iertifications();
+//Console.WriteLine(iertification.Update());
+
+var sgroup = new Sgroups();
+Console.WriteLine(sgroup.Update());
+
+foreach (var i in sgroup.list)
 {
-    Console.WriteLine($"{ i.Name}\n{ i.Link }");
+    Console.WriteLine($"{ i[0]}\n{ i[1] }");
 }
+
+//foreach (var i in timetable.list)
+//{
+//    Console.WriteLine($"{ i.Name}\n{ i.Link }");
+//}
 
 //var cschedule = new CSchedule();

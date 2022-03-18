@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace VKI_Telegram_bot.DB
 {
-    public class PDFPEntity
+    public class Iertification
     {
         public int Id { get; set; }
         public string Name { get; set; }
