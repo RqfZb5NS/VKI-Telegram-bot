@@ -1,14 +1,33 @@
-﻿namespace VKI_Telegram_bot.Parsers.ci.nsu.ru_parsers
+﻿using System.Text.Json;
+using VKI_Telegram_bot.DB;
+
+namespace VKI_Telegram_bot.Parsers.ci.nsu.ru_parsers
 {
     public class CSchedule : Parser
     {
         public List<List<string>> list = new List<List<string>>();
-        public CSchedule(string url = "https://ci.nsu.ru/education/raspisanie-zvonkov/") : base(url)
+        public string name = "";
+        public CSchedule(string url = "https://ci.nsu.ru/education/raspisanie-zvonkov/", 
+            string _name = "cschedule") : base(url)
         {
-            _ = Update(new List<List<string>>());
+            name = _name;
+            _ = Update();
         }
-        public bool Update(List<List<string>> list2)
+        public bool Update()
         {
+            List<List<string>>? list2 = new();
+            using (VKITGBContext db = new VKITGBContext())
+            {
+                if (db.Dates.Find(name) != null)
+                {
+                    list2 = JsonSerializer.Deserialize<List<List<string>>>(db.Dates.Find(name).JSonData);
+                }
+                else
+                {
+                    list2 = new List<List<string>>();
+                }
+
+            }
             list.Clear();
             int ctr = 0;
             foreach (var i in doc.DocumentNode.SelectSingleNode(".//table[@class='table']").SelectNodes(".//tr"))
@@ -28,6 +47,18 @@
                     {
                         if (list[i][j] != list2[i][j])
                         {
+                            using (VKITGBContext db = new VKITGBContext())
+                            {
+                                if (db.Dates.Find(name) != null)
+                                {
+                                    db.Dates.Find(name).JSonData = JsonSerializer.Serialize(list);
+                                }
+                                else
+                                {
+                                    db.Dates.Add(new Data { JSonData = JsonSerializer.Serialize(list), Name = name });
+                                }
+                                db.SaveChanges();
+                            }
                             return true;
                         }
                     }
@@ -36,6 +67,18 @@
             }
             else
             {
+                using (VKITGBContext db = new VKITGBContext())
+                {
+                    if (db.Dates.Find(name) != null)
+                    {
+                        db.Dates.Find(name).JSonData = JsonSerializer.Serialize(list);
+                    }
+                    else
+                    {
+                        db.Dates.Add(new Data { JSonData = JsonSerializer.Serialize(list), Name = name });
+                    }
+                    db.SaveChanges();
+                }
                 return true;
             }
         }

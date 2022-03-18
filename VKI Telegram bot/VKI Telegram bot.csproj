@@ -9,6 +9,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Parsers\ci.nsu.ru parsers\PDFPs\**" />
+    <EmbeddedResource Remove="Parsers\ci.nsu.ru parsers\PDFPs\**" />
+    <None Remove="Parsers\ci.nsu.ru parsers\PDFPs\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Compile Remove="Data.cs" />
   </ItemGroup>
 
