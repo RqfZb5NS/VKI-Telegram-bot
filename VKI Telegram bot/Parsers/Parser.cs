@@ -3,7 +3,7 @@
     public class Parser
     {
         public string html = string.Empty;
-        public HtmlAgilityPack.HtmlDocument doc = new HtmlAgilityPack.HtmlDocument();
+        public HtmlAgilityPack.HtmlDocument doc = new();
         public Parser(string url)
         {
             GetDoc(url);
@@ -12,7 +12,10 @@
         {
             try
             {
-                using (HttpClientHandler hdl = new HttpClientHandler { AllowAutoRedirect = false, AutomaticDecompression = System.Net.DecompressionMethods.All })
+                using (HttpClientHandler hdl = new HttpClientHandler { 
+                    AllowAutoRedirect = false, 
+                    AutomaticDecompression = System.Net.DecompressionMethods.All 
+                })
                 {
                     using (HttpClient client = new HttpClient(hdl))
                     {
