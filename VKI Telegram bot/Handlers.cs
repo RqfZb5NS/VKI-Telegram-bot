@@ -1,21 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Telegram.Bot;
+﻿using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
-using Telegram.Bot.Types.InlineQueryResults;
 using Telegram.Bot.Types.InputFiles;
 using Telegram.Bot.Types.ReplyMarkups;
 using VKI_Telegram_bot.DB;
+using VKI_Telegram_bot;
 
 namespace VKI_Telegram_bot.Telegram
 {
     public class Handlers
     {
+        static ReplyKeyboardMarkup defaultKB = new(
+                    new[]
+                    {
+                        new KeyboardButton[] { "Расписание", "Звонки"},
+                        new KeyboardButton[] { "Списки" },
+                    })
+        {
+            ResizeKeyboard = true
+        };
         public static Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
         {
             var ErrorMessage = exception switch
@@ -32,19 +36,18 @@ namespace VKI_Telegram_bot.Telegram
         {
             var handler = update.Type switch
             {
+                UpdateType.Message => BotOnMessageReceived(botClient, update.Message!),
+                UpdateType.EditedMessage => BotOnMessageReceived(botClient, update.EditedMessage!),
+                UpdateType.CallbackQuery => BotOnCallbackQueryReceived(botClient, update.CallbackQuery!),
                 // UpdateType.Unknown:
                 // UpdateType.ChannelPost:
                 // UpdateType.EditedChannelPost:
                 // UpdateType.ShippingQuery:
                 // UpdateType.PreCheckoutQuery:
-                // UpdateType.Poll:                
+                //UpdateType.Poll:                
                 //UpdateType.InlineQuery => BotOnInlineQueryReceived(botClient, update.InlineQuery!),
                 //UpdateType.ChosenInlineResult => BotOnChosenInlineResultReceived(botClient, update.ChosenInlineResult!),
                 //_ => UnknownUpdateHandlerAsync(botClient, update)
-                UpdateType.Message => BotOnMessageReceived(botClient, update.Message!),
-                UpdateType.EditedMessage => BotOnMessageReceived(botClient, update.EditedMessage!),
-                UpdateType.CallbackQuery => BotOnCallbackQueryReceived(botClient, update.CallbackQuery!),
-
             };
 
             try
@@ -59,22 +62,16 @@ namespace VKI_Telegram_bot.Telegram
 
         private static async Task BotOnMessageReceived(ITelegramBotClient botClient, Message message)
         {
-            //Console.WriteLine($"Receive message type: {message.Type}");
             if (message.Type != MessageType.Text)
                 return;
-
+            Console.WriteLine($"Id: {message.Chat.Id}, Text: {message.Text}");
             var action = message.Text!.Split(' ')[0] switch
             {
                 "/start" => AddUser(botClient, message),
-                "Расписание" => SendInlineKeyboard(botClient, message, Updater.timetable.InLine),
-                "Списки" => SendInlineKeyboard(botClient, message, Updater.sgroup.InLine),
-                _ => SendKeyboard(botClient, message, new(
-                    new[]
-                    {
-                        new KeyboardButton[] { "Расписание", "Звонки"},
-                        new KeyboardButton[] { "Списки" },
-                    })
-                { ResizeKeyboard = true })
+                "Расписание" => SendInlineKeyboard(botClient, message, Program.timetable.InLine, "Выберите:"),
+                "Звонки" => SendInlineKeyboard(botClient, message, Program.cschedule.InLine, "Расписание звонков:"),
+                "Списки" => SendInlineKeyboard(botClient, message, Program.sgroup.InLine, "Выберите:"),
+                _ => SendKeyboard(botClient, message, defaultKB)
             };
             static async Task<Message> AddUser(ITelegramBotClient botClient, Message message)
             {
@@ -92,24 +89,15 @@ namespace VKI_Telegram_bot.Telegram
                     }
                     db.SaveChanges();
                 }
-                ReplyKeyboardMarkup replyKeyboardMarkup = new(
-                    new[]
-                    {
-                        new KeyboardButton[] { "Расписание", "Звонки"},
-                        new KeyboardButton[] { "Списки" },
-                    })
-                {
-                    ResizeKeyboard = true
-                };
                 return await botClient.SendTextMessageAsync(chatId: message.Chat.Id,
                                                             text: "Выберите:",
-                                                            replyMarkup: replyKeyboardMarkup);
+                                                            replyMarkup: defaultKB);
             }
-            static async Task<Message> SendInlineKeyboard(ITelegramBotClient botClient, Message message, InlineKeyboardMarkup kb)
+            static async Task<Message> SendInlineKeyboard(ITelegramBotClient botClient, Message message, InlineKeyboardMarkup kb, string text)
             {
                 await botClient.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
                 return await botClient.SendTextMessageAsync(chatId: message.Chat.Id,
-                                                            text: "Выберите:",
+                                                            text: text,
                                                             replyMarkup: kb
                                                             );
             }
@@ -123,17 +111,27 @@ namespace VKI_Telegram_bot.Telegram
         }
         private static async Task BotOnCallbackQueryReceived(ITelegramBotClient botClient, CallbackQuery callbackQuery)
         {
+            Console.WriteLine($"Id: {callbackQuery.Message.Chat.Id}, CallbackQuery: {callbackQuery.Message.Text}");
             var action = callbackQuery.Data.Split(' ')[0] switch
             {
                 "timetable" => SendTimetable(botClient, callbackQuery),
+                "sgroup" => SendSgroup(botClient, callbackQuery),
+                _ => null,
             };
 
             static async Task<Message> SendTimetable(ITelegramBotClient botClient, CallbackQuery callbackQuery)
             {
                 return await SendDocument(botClient, 
-                    callbackQuery.Message, 
+                    callbackQuery.Message,
                     //Updater.timetable.list[Convert.ToInt32(callbackQuery.Data.Split(' ')[1])][0],
-                    Updater.timetable.list[Convert.ToInt32(callbackQuery.Data.Split(' ')[1])][1]);
+                    Program.timetable.list[Convert.ToInt32(callbackQuery.Data.Split(' ')[1])][1]);
+            }
+            static async Task<Message> SendSgroup(ITelegramBotClient botClient, CallbackQuery callbackQuery)
+            {
+                return await SendDocument(botClient,
+                    callbackQuery.Message,
+                    //Updater.timetable.list[Convert.ToInt32(callbackQuery.Data.Split(' ')[1])][0],
+                    Program.sgroup.list[Convert.ToInt32(callbackQuery.Data.Split(' ')[1])][1]);
             }
             static async Task<Message> SendDocument(ITelegramBotClient botClient, Message message, string link) // string name
             {
