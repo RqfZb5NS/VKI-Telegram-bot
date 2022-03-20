@@ -13,7 +13,7 @@ namespace VKI_Telegram_bot.Parsers.ci.nsu.ru_parsers
         public PDFP(string url, string _name) : base(url)
         {
             name = _name;
-            _ = Update();
+            //_ = Update();
         }
 
         public bool Update()

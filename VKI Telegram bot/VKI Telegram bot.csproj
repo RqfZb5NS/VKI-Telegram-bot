@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <Compile Remove="Data.cs" />
+    <Compile Remove="Updater.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -29,10 +30,6 @@
     <None Update="appsettings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Telegram\Commands\" />
   </ItemGroup>
 
 </Project>
