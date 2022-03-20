@@ -1,6 +1,6 @@
 ﻿namespace VKI_Telegram_bot.Parsers
 {
-    public class Parser
+    public abstract class Parser
     {
         public string html = string.Empty;
         public HtmlAgilityPack.HtmlDocument doc = new();

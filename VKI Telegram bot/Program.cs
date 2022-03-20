@@ -5,9 +5,14 @@ using System.Text.Json;
 using VKI_Telegram_bot.Telegram;
 using VKI_Telegram_bot;
 
-Console.WriteLine(AppSettings.settings.BotApiKey);
+//Console.WriteLine(AppSettings.settings.BotApiKey);
 
-//Updater parser = new Updater();
+Updater parser = new Updater();
+Bot.Start();
+//foreach (var i in parser.iertification.list)
+//{
+//    Console.WriteLine($"{ i[0]}\n{ i[1] }");
+//}
 
 //using (VKITGBContext db = new VKITGBContext())
 //{

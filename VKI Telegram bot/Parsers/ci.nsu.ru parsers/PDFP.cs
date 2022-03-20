@@ -1,18 +1,21 @@
 ﻿using VKI_Telegram_bot.DB;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Telegram.Bot.Types.ReplyMarkups;
 
 namespace VKI_Telegram_bot.Parsers.ci.nsu.ru_parsers
 {
     public class PDFP : Parser
     {
         public List<List<string>> list = new();
+        public InlineKeyboardMarkup InLine;
         public string name = "";
         public PDFP(string url, string _name) : base(url)
         {
             name = _name;
             _ = Update();
         }
+
         public bool Update()
         {
             List<List<string>>? list2 = new();
@@ -56,9 +59,11 @@ namespace VKI_Telegram_bot.Parsers.ci.nsu.ru_parsers
                             }
                             db.SaveChanges();
                         }
+                        GetInLine();
                         return true;
                     }
                 }
+                _ = GetInLine();
                 return false;
             }
             else
@@ -75,8 +80,21 @@ namespace VKI_Telegram_bot.Parsers.ci.nsu.ru_parsers
                     }
                     db.SaveChanges();
                 }
+                _ = GetInLine();
                 return true;
             }
+        }
+        public InlineKeyboardMarkup GetInLine()
+        {
+            List<InlineKeyboardButton[]> bts = new();
+            int ctr = 0;
+            foreach (var i in list)
+            {
+                bts.Add(new InlineKeyboardButton[] { InlineKeyboardButton.WithCallbackData(i[0], $"{name} {ctr}") });
+                ctr++;
+            }
+            InLine = new InlineKeyboardMarkup(bts);
+            return new(bts);
         }
     }
 }

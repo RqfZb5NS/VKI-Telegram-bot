@@ -5,6 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
 using VKI_Telegram_bot.Parsers.ci.nsu.ru_parsers;
+using Telegram.Bot.Types;
+using Telegram.Bot;
 
 namespace VKI_Telegram_bot.Telegram
 {
@@ -20,24 +22,27 @@ namespace VKI_Telegram_bot.Telegram
         {
             thread.Start();
         }
-        public static void Parsing()
+        public static async void Parsing()
         {
-            Thread.Sleep(10800000);
-            if (iertification.Update())
+            while (true)
             {
+                Thread.Sleep(10800000);
+                if (iertification.Update())
+                {
+                    
+                }
+                if (sgroup.Update())
+                {
 
-            }
-            if (sgroup.Update())
-            {
+                }
+                if (timetable.Update())
+                {
 
-            }
-            if (timetable.Update())
-            {
+                }
+                if (cschedule.Update())
+                {
 
-            }
-            if (cschedule.Update())
-            {
-
+                }
             }
         }
     }
