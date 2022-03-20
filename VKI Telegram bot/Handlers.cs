@@ -65,34 +65,27 @@ namespace VKI_Telegram_bot.Telegram
             if (message.Type != MessageType.Text)
                 return;
             Console.WriteLine($"Id: {message.Chat.Id}, Text: {message.Text}");
+            using(VKITGBContext db = new VKITGBContext())
+            {
+                if (db.Users.Find(message.Chat.Id) == null)
+                {
+                    db.Users.Add(new DB.User
+                    {
+                        Id = message.Chat.Id,
+                        Name = $"{message.Chat.FirstName} {message.Chat.LastName}",
+                        Admin = false
+                    }
+                    );
+                }
+                db.SaveChanges();
+            }
             var action = message.Text!.Split(' ')[0] switch
             {
-                "/start" => AddUser(botClient, message),
                 "Расписание" => SendInlineKeyboard(botClient, message, Program.timetable.InLine, "Выберите:"),
                 "Звонки" => SendInlineKeyboard(botClient, message, Program.cschedule.InLine, "Расписание звонков:"),
                 "Списки" => SendInlineKeyboard(botClient, message, Program.sgroup.InLine, "Выберите:"),
                 _ => SendKeyboard(botClient, message, defaultKB)
             };
-            static async Task<Message> AddUser(ITelegramBotClient botClient, Message message)
-            {
-                using (VKITGBContext db = new VKITGBContext())
-                {
-                    if (db.Users.Find(message.Chat.Id) == null)
-                    {
-                        db.Users.Add(new DB.User
-                            {
-                                Id = message.Chat.Id,
-                                Name = $"{message.Chat.FirstName} {message.Chat.LastName}",
-                                Admin = false
-                            }
-                        );
-                    }
-                    db.SaveChanges();
-                }
-                return await botClient.SendTextMessageAsync(chatId: message.Chat.Id,
-                                                            text: "Выберите:",
-                                                            replyMarkup: defaultKB);
-            }
             static async Task<Message> SendInlineKeyboard(ITelegramBotClient botClient, Message message, InlineKeyboardMarkup kb, string text)
             {
                 await botClient.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
@@ -111,7 +104,7 @@ namespace VKI_Telegram_bot.Telegram
         }
         private static async Task BotOnCallbackQueryReceived(ITelegramBotClient botClient, CallbackQuery callbackQuery)
         {
-            Console.WriteLine($"Id: {callbackQuery.Message.Chat.Id}, CallbackQuery: {callbackQuery.Message.Text}");
+            Console.WriteLine($"Id: {callbackQuery.Message.Chat.Id}, CallbackQuery: {callbackQuery.Data}");
             var action = callbackQuery.Data.Split(' ')[0] switch
             {
                 "timetable" => SendTimetable(botClient, callbackQuery),

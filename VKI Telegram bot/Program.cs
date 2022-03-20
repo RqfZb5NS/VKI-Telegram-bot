@@ -51,15 +51,8 @@ namespace VKI_Telegram_bot.Telegram
                         {
                             foreach (var user in db.Users.ToList())
                             {
-                                tb.SendTextMessageAsync(chatId: user.Id, text: "Промежуточная аттестация обновилась");
-                                //try
-                                //{
-                                //    tb.SendTextMessageAsync(chatId: user.Id, text: "Промежуточная аттестация обновилась");
-                                //}
-                                //catch (Exception ex)
-                                //{
-                                //    if (ex == Telegram.Bot.Exceptions.)
-                                //}
+                                //var usr = tb.GetChatMemberAsync();
+                                _ = tb.SendTextMessageAsync(chatId: user.Id, text: "Промежуточная аттестация обновилась");
                             }
                         }
                     }
