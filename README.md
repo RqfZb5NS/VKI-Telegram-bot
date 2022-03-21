@@ -1,2 +1,2 @@
 # VKI-Telegram-bot
-Для запуска бота выполните `dotnet "VKI Telegram bot.dll"`
+Для запуска выполните `dotnet "VKI Telegram bot.dll"`
