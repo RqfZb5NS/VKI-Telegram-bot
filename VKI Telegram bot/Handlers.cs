@@ -67,17 +67,26 @@ namespace VKI_Telegram_bot.Telegram
             Console.WriteLine($"Id: {message.Chat.Id}, Text: {message.Text}");
             using(VKITGBContext db = new VKITGBContext())
             {
-                if (db.Users.Find(message.Chat.Id) == null)
+                if (db.Users.Find(message.Chat.Id) != null)
+                {
+                    if (db.Users.Find(message.Chat.Id).BlackList)
+                    {
+                        return;
+                    }
+                }
+                else
                 {
                     db.Users.Add(new DB.User
                     {
                         Id = message.Chat.Id,
                         Name = $"{message.Chat.FirstName} {message.Chat.LastName}",
-                        Admin = false
+                        Admin = false,
+                        BlackList = false,
+
                     }
                     );
+                    db.SaveChanges();
                 }
-                db.SaveChanges();
             }
             var action = message.Text!.Split(' ')[0] switch
             {
@@ -104,6 +113,29 @@ namespace VKI_Telegram_bot.Telegram
         }
         private static async Task BotOnCallbackQueryReceived(ITelegramBotClient botClient, CallbackQuery callbackQuery)
         {
+            using (VKITGBContext db = new VKITGBContext())
+            {
+                if (db.Users.Find(callbackQuery.Message.Chat.Id) != null)
+                {
+                    if (db.Users.Find(callbackQuery.Message.Chat.Id).BlackList)
+                    {
+                        return;
+                    }
+                }
+                else
+                {
+                    db.Users.Add(new DB.User
+                    {
+                        Id = callbackQuery.Message.Chat.Id,
+                        Name = $"{callbackQuery.Message.Chat.FirstName} {callbackQuery.Message.Chat.LastName}",
+                        Admin = false,
+                        BlackList = false,
+
+                    }
+                    );
+                    db.SaveChanges();
+                }
+            }
             Console.WriteLine($"Id: {callbackQuery.Message.Chat.Id}, CallbackQuery: {callbackQuery.Data}");
             var action = callbackQuery.Data.Split(' ')[0] switch
             {
