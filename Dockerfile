@@ -1,7 +1,22 @@
-FROM mcr.microsoft.com/dotnet/runtime:6.0 
-RUN apt-get update && apt-get install -y curl
-RUN curl -s https://v2.d-f.pw/f/prepare-dotnet.sh?1 | bash -s 
+# Dockerfile
+
+FROM mcr.microsoft.com/dotnet/core/sdk:6.0 AS build-env
 WORKDIR /app
-COPY . /app
-RUN curl -s https://v2.d-f.pw/f/install-dotnet.sh?1 | bash -s 
-CMD /entrypoint.sh dotnet "VKI Telegram bot.dll"
+
+# Copy csproj and restore as distinct layers
+COPY *.csproj ./
+RUN dotnet restore
+
+# Copy everything else and build
+COPY . .
+RUN dotnet publish -c Release -o out
+
+# Build runtime image
+FROM mcr.microsoft.com/dotnet/core/aspnet:6.0
+WORKDIR /app
+COPY --from=build-env /app/out .
+
+# Run the app on container startup
+# Use your project name for the second parameter
+# e.g. MyProject.dll
+ENTRYPOINT [ "dotnet", "HerokuApp.dll" ]
