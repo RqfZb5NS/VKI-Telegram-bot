@@ -39,15 +39,7 @@ namespace VKI_Telegram_bot.Telegram
                 UpdateType.Message => BotOnMessageReceived(botClient, update.Message!),
                 UpdateType.EditedMessage => BotOnMessageReceived(botClient, update.EditedMessage!),
                 UpdateType.CallbackQuery => BotOnCallbackQueryReceived(botClient, update.CallbackQuery!),
-                // UpdateType.Unknown:
-                // UpdateType.ChannelPost:
-                // UpdateType.EditedChannelPost:
-                // UpdateType.ShippingQuery:
-                // UpdateType.PreCheckoutQuery:
-                //UpdateType.Poll:                
-                //UpdateType.InlineQuery => BotOnInlineQueryReceived(botClient, update.InlineQuery!),
-                //UpdateType.ChosenInlineResult => BotOnChosenInlineResultReceived(botClient, update.ChosenInlineResult!),
-                //_ => UnknownUpdateHandlerAsync(botClient, update)
+                _ => UnknownUpdateHandlerAsync(botClient, update)
             };
 
             try
@@ -165,6 +157,11 @@ namespace VKI_Telegram_bot.Telegram
                     chatId: message.Chat.Id,
                     document: new InputOnlineFile(link));
             }
+        }
+        private static Task UnknownUpdateHandlerAsync(ITelegramBotClient botClient, Update update)
+        {
+            Console.WriteLine($"Unknown update type: {update.Type}");
+            return Task.CompletedTask;
         }
     }
 }
