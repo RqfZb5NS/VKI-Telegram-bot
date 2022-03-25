@@ -10,6 +10,7 @@ namespace VKI_Telegram_bot
     public struct Settings
     {
         public string BotApiKey { get; set; }
+        public int UpdaterAwait { get; set; }
     }
     public static class AppSettings
     {
