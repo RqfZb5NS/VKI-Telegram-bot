@@ -7,7 +7,8 @@ using Telegram.Bot.Types.ReplyMarkups;
 using VKI_Telegram_bot.DB;
 using VKI_Telegram_bot;
 
-namespace VKI_Telegram_bot.Telegram
+
+namespace VKI_Telegram_bot
 {
     public class Handlers
     {
@@ -72,24 +73,20 @@ namespace VKI_Telegram_bot.Telegram
                     {
                         Id = message.Chat.Id,
                         Name = $"{message.Chat.FirstName} {message.Chat.LastName}",
-                        Admin = false,
                         BlackList = false,
-
-                    }
-                    );
+                    });
                     db.SaveChanges();
                 }
             }
-            var action = message.Text!.Split(' ')[0] switch
+            _ = message.Text!.Split(' ')[0] switch
             {
-                "Расписание" => SendInlineKeyboard(botClient, message, Program.timetable.InLine, "Выберите:"),
-                "Звонки" => SendInlineKeyboard(botClient, message, Program.cschedule.InLine, "Расписание звонков:"),
-                "Списки" => SendInlineKeyboard(botClient, message, Program.sgroup.InLine, "Выберите:"),
+                "Расписание" => SendInlineKeyboard(botClient, message, Program.timetable.inLine!, "Выберите:"),
+                "Звонки" => SendInlineKeyboard(botClient, message, Program.schedule.InLine!, "Расписание звонков:"),
+                "Списки" => SendInlineKeyboard(botClient, message, Program.sgroup.inLine!, "Выберите:"),
                 _ => SendKeyboard(botClient, message, defaultKB)
             };
             static async Task<Message> SendInlineKeyboard(ITelegramBotClient botClient, Message message, InlineKeyboardMarkup kb, string text)
             {
-                await botClient.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
                 return await botClient.SendTextMessageAsync(chatId: message.Chat.Id,
                                                             text: text,
                                                             replyMarkup: kb
@@ -116,16 +113,13 @@ namespace VKI_Telegram_bot.Telegram
                 }
                 else
                 {
-                    db.Users.Add(new DB.User
+                    _ = db.Users.AddAsync(new DB.User
                     {
                         Id = callbackQuery.Message.Chat.Id,
                         Name = $"{callbackQuery.Message.Chat.FirstName} {callbackQuery.Message.Chat.LastName}",
-                        Admin = false,
                         BlackList = false,
-
-                    }
-                    );
-                    db.SaveChanges();
+                    });
+                    _ = db.SaveChangesAsync();
                 }
             }
             Console.WriteLine($"Id: {callbackQuery.Message.Chat.Id}, CallbackQuery: {callbackQuery.Data}");
@@ -140,14 +134,12 @@ namespace VKI_Telegram_bot.Telegram
             {
                 return await SendDocument(botClient, 
                     callbackQuery.Message,
-                    //Updater.timetable.list[Convert.ToInt32(callbackQuery.Data.Split(' ')[1])][0],
                     Program.timetable.list[Convert.ToInt32(callbackQuery.Data.Split(' ')[1])][1]);
             }
             static async Task<Message> SendSgroup(ITelegramBotClient botClient, CallbackQuery callbackQuery)
             {
                 return await SendDocument(botClient,
                     callbackQuery.Message,
-                    //Updater.timetable.list[Convert.ToInt32(callbackQuery.Data.Split(' ')[1])][0],
                     Program.sgroup.list[Convert.ToInt32(callbackQuery.Data.Split(' ')[1])][1]);
             }
             static async Task<Message> SendDocument(ITelegramBotClient botClient, Message message, string link) // string name

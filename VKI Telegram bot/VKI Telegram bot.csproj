@@ -9,14 +9,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Parsers\ci.nsu.ru parsers\PDFPs\**" />
-    <EmbeddedResource Remove="Parsers\ci.nsu.ru parsers\PDFPs\**" />
-    <None Remove="Parsers\ci.nsu.ru parsers\PDFPs\**" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Compile Remove="Data.cs" />
-    <Compile Remove="Updater.cs" />
+    <Compile Remove="Parsers\ci_nsu_ru\Iertification.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -31,5 +25,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
+
+  <ProjectExtensions><VisualStudio><UserProperties appsettings_1json__JsonSchema="" /></VisualStudio></ProjectExtensions>
 
 </Project>
