@@ -12,16 +12,17 @@ public static class Program
     public static PDFParser sgroup = new PDFParser("https://ci.nsu.ru/education/spisok-uchebnykh-grupp/", "sgroup");
     public static PDFParser timetable = new PDFParser("https://ci.nsu.ru/education/schedule/", "timetable");
     public static Schedule schedule = new Schedule("https://ci.nsu.ru/education/raspisanie-zvonkov/", "cschedule");
-    public static Thread thread = new Thread(new ThreadStart(StartUpdate));
+    public static Thread uptadeThread = new Thread(new ParameterizedThreadStart(StartUpdate));
+    public static CancellationTokenSource cts = new CancellationTokenSource();
 
     public static TelegramBotClient tb;
 
     public static async Task Main()
     {
+        Console.CancelKeyPress += new ConsoleCancelEventHandler(ConsoleCancerHandler);
         tb = new TelegramBotClient(AppSettings.settings.BotApiKey);
-        using var cts = new CancellationTokenSource();
-
-        thread.Start();
+        
+        uptadeThread.Start(cts);
 
         Telegram.Bot.Types.User me = await tb.GetMeAsync();
         Console.Title = me.Username ?? "VKI Telegram bot";
@@ -31,19 +32,44 @@ public static class Program
                            receiverOptions,
                            cts.Token);
         Console.WriteLine($"Start listening for @{me.Username}");
-
         Console.ReadLine();
-
-        
         cts.Cancel();
+        cts.Dispose();
+        //while (!cts.IsCancellationRequested)
+        //{
+        //    string? command = Console.ReadLine();
+        //    if (command != null)
+        //    {
+        //        switch (command)
+        //        {
+        //            case "x":
+        //                {
+        //                    Console.WriteLine("exit");
+        //                    cts.Cancel();
+        //                }
+        //                break;
+        //            default:
+        //                break;
+        //        }
+        //    }
+
+        //}
     }
-    public static async void StartUpdate()
+    private static void ConsoleCancerHandler(object sender, ConsoleCancelEventArgs args)
     {
-        while (true)
+        Console.WriteLine("закрытие приложения");
+        cts.Cancel();
+        cts.Dispose();
+    }
+    public static async void StartUpdate(object obj)
+    {
+        CancellationTokenSource ctn = obj as CancellationTokenSource;
+
+        try
         {
-            Console.WriteLine("Обновление парсера");
-            try
+            while (!ctn.IsCancellationRequested)
             {
+                Console.WriteLine("Обновление парсера");
                 using (VKITGBContext db = new VKITGBContext())
                 {
                     await iertification.UpdateAsync();
@@ -53,7 +79,15 @@ public static class Program
                         {
                             foreach (var user in db.Users.ToList())
                             {
-                                await tb.SendTextMessageAsync(chatId: user.Id, text: "Промежуточная аттестация обновилась");
+                                try
+                                {
+                                    await tb.SendTextMessageAsync(chatId: user.Id, text: "Промежуточная аттестация обновилась");
+                                }
+                                catch (Exception ex)
+                                {
+                                    Console.WriteLine(ex.Message);
+                                }
+                                
                             }
                             db.ParserDataes.Find(iertification.name)!.JSonData = iertification.parserData.JSonData;
                         }
@@ -70,7 +104,14 @@ public static class Program
                         {
                             foreach (var user in db.Users.ToList())
                             {
-                                await tb.SendTextMessageAsync(chatId: user.Id, text: "Списки групп обновились");
+                                try
+                                {
+                                    await tb.SendTextMessageAsync(chatId: user.Id, text: "Списки групп обновились");
+                                }
+                                catch (Exception ex)
+                                {
+                                    Console.WriteLine($"{ex.Message} {user.Id} {user.Name}");
+                                }
                             }
                             db.ParserDataes.Find(sgroup.name)!.JSonData = sgroup.parserData.JSonData;
 
@@ -88,7 +129,14 @@ public static class Program
                         {
                             foreach (var user in db.Users.ToList())
                             {
-                                await tb.SendTextMessageAsync(chatId: user.Id, text: "Расписание обновилось");
+                                try
+                                {
+                                    await tb.SendTextMessageAsync(chatId: user.Id, text: "Расписание обновилось");
+                                }
+                                catch (Exception ex)
+                                {
+                                    Console.WriteLine($"{ex.Message} {user.Id} {user.Name}");
+                                }
                             }
                             db.ParserDataes.Find(timetable.name)!.JSonData = timetable.parserData.JSonData;
 
@@ -106,7 +154,14 @@ public static class Program
                         {
                             foreach (var user in db.Users.ToList())
                             {
-                                await tb.SendTextMessageAsync(chatId: user.Id, text: "Расписание звонков обновилось");
+                                try
+                                {
+                                    await tb.SendTextMessageAsync(chatId: user.Id, text: "Расписание звонков обновилось");
+                                }
+                                catch (Exception ex)
+                                {
+                                    Console.WriteLine($"{ex.Message} {user.Id} {user.Name}");
+                                }
                             }
                             db.ParserDataes.Find(schedule.name)!.JSonData = schedule.parserData.JSonData;
                         }
@@ -117,12 +172,13 @@ public static class Program
                     }
                     db.SaveChanges();
                 }
+                ctn.Token.WaitHandle.WaitOne(AppSettings.settings.UpdaterAwait);
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
-            Thread.Sleep(AppSettings.settings.UpdaterAwait);
         }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+        
     }
 }
