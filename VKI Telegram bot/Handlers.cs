@@ -13,14 +13,11 @@ namespace VKI_Telegram_bot
     public class Handlers
     {
         static ReplyKeyboardMarkup defaultKB = new(
-                    new[]
-                    {
-                        new KeyboardButton[] { "Расписание", "Звонки"},
-                        new KeyboardButton[] { "Списки" },
-                    })
-        {
-            ResizeKeyboard = true
-        };
+            new[]
+            {
+                new KeyboardButton[] { "Расписание", "Звонки"},
+                new KeyboardButton[] { "Списки", "Аттестация" },
+            }) { ResizeKeyboard = true };
         public static Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
         {
             var ErrorMessage = exception switch
@@ -83,6 +80,7 @@ namespace VKI_Telegram_bot
                 "Расписание" => SendInlineKeyboard(botClient, message, Program.timetable.inLine!, "Выберите:"),
                 "Звонки" => SendInlineKeyboard(botClient, message, Program.schedule.InLine!, "Расписание звонков:"),
                 "Списки" => SendInlineKeyboard(botClient, message, Program.sgroup.inLine!, "Выберите:"),
+                "Аттестация" => SendInlineKeyboard(botClient, message, Program.iertification.inLine!, "Выберите:"),
                 _ => SendKeyboard(botClient, message, defaultKB)
             };
             static async Task<Message> SendInlineKeyboard(ITelegramBotClient botClient, Message message, InlineKeyboardMarkup kb, string text)
@@ -125,12 +123,13 @@ namespace VKI_Telegram_bot
             Console.WriteLine($"Id: {callbackQuery.Message.Chat.Id}, CallbackQuery: {callbackQuery.Data}");
             var action = callbackQuery.Data.Split(' ')[0] switch
             {
-                "timetable" => SendTimetable(botClient, callbackQuery),
+                "timetable" => SendPDFP(botClient, callbackQuery),
                 "sgroup" => SendSgroup(botClient, callbackQuery),
+                "iertification" => SendPDFP(botClient, callbackQuery),
                 _ => null,
             };
 
-            static async Task<Message> SendTimetable(ITelegramBotClient botClient, CallbackQuery callbackQuery)
+            static async Task<Message> SendPDFP(ITelegramBotClient botClient, CallbackQuery callbackQuery)
             {
                 return await SendDocument(botClient, 
                     callbackQuery.Message,

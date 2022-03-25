@@ -11,6 +11,7 @@ namespace VKI_Telegram_bot
     {
         public string BotApiKey { get; set; }
         public int UpdaterAwait { get; set; }
+        public int[] Admins { get; set; }
     }
     public static class AppSettings
     {

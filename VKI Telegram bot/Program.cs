@@ -53,7 +53,7 @@ public static class Program
                         {
                             foreach (var user in db.Users.ToList())
                             {
-                                tb.SendTextMessageAsync(chatId: user.Id, text: "Промежуточная аттестация обновилась");
+                                await tb.SendTextMessageAsync(chatId: user.Id, text: "Промежуточная аттестация обновилась");
                             }
                             db.ParserDataes.Find(iertification.name)!.JSonData = iertification.parserData.JSonData;
                         }
@@ -70,7 +70,7 @@ public static class Program
                         {
                             foreach (var user in db.Users.ToList())
                             {
-                                tb.SendTextMessageAsync(chatId: user.Id, text: "Списки групп обновились");
+                                await tb.SendTextMessageAsync(chatId: user.Id, text: "Списки групп обновились");
                             }
                             db.ParserDataes.Find(sgroup.name)!.JSonData = sgroup.parserData.JSonData;
 
@@ -88,7 +88,7 @@ public static class Program
                         {
                             foreach (var user in db.Users.ToList())
                             {
-                                tb.SendTextMessageAsync(chatId: user.Id, text: "Расписание обновилось");
+                                await tb.SendTextMessageAsync(chatId: user.Id, text: "Расписание обновилось");
                             }
                             db.ParserDataes.Find(timetable.name)!.JSonData = timetable.parserData.JSonData;
 
@@ -106,7 +106,7 @@ public static class Program
                         {
                             foreach (var user in db.Users.ToList())
                             {
-                                tb.SendTextMessageAsync(chatId: user.Id, text: "Расписание звонков обновилось");
+                                await tb.SendTextMessageAsync(chatId: user.Id, text: "Расписание звонков обновилось");
                             }
                             db.ParserDataes.Find(schedule.name)!.JSonData = schedule.parserData.JSonData;
                         }
