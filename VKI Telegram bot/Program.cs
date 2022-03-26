@@ -15,6 +15,7 @@ public static class Program
     public static Thread uptadeThread = new Thread(new ParameterizedThreadStart(StartUpdate));
     public static CancellationTokenSource cts = new CancellationTokenSource();
 
+
     public static TelegramBotClient tb;
 
     public static async Task Main()
