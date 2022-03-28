@@ -77,10 +77,10 @@ namespace VKI_Telegram_bot
             }
             _ = message.Text!.Split(' ')[0] switch
             {
-                "Расписание" => SendInlineKeyboard(botClient, message, Program.timetable.inLine!, "Выберите:"),
-                "Звонки" => SendInlineKeyboard(botClient, message, Program.schedule.InLine!, "Расписание звонков:"),
-                "Списки" => SendInlineKeyboard(botClient, message, Program.sgroup.inLine!, "Выберите:"),
-                "Аттестация" => SendInlineKeyboard(botClient, message, Program.iertification.inLine!, "Выберите:"),
+                "Расписание" => SendInlineKeyboard(botClient, message, Updater.timetable.inLine!, "Выберите:"),
+                "Звонки" => SendInlineKeyboard(botClient, message, Updater.schedule.InLine!, "Расписание звонков:"),
+                "Списки" => SendInlineKeyboard(botClient, message, Updater.sgroup.inLine!, "Выберите:"),
+                "Аттестация" => SendInlineKeyboard(botClient, message, Updater.iertification.inLine!, "Выберите:"),
                 _ => SendKeyboard(botClient, message, defaultKB)
             };
             static async Task<Message> SendInlineKeyboard(ITelegramBotClient botClient, Message message, InlineKeyboardMarkup kb, string text)
@@ -133,13 +133,13 @@ namespace VKI_Telegram_bot
             {
                 return await SendDocument(botClient, 
                     callbackQuery.Message,
-                    Program.timetable.list[Convert.ToInt32(callbackQuery.Data.Split(' ')[1])][1]);
+                    Updater.timetable.list[Convert.ToInt32(callbackQuery.Data.Split(' ')[1])][1]);
             }
             static async Task<Message> SendSgroup(ITelegramBotClient botClient, CallbackQuery callbackQuery)
             {
                 return await SendDocument(botClient,
                     callbackQuery.Message,
-                    Program.sgroup.list[Convert.ToInt32(callbackQuery.Data.Split(' ')[1])][1]);
+                    Updater.sgroup.list[Convert.ToInt32(callbackQuery.Data.Split(' ')[1])][1]);
             }
             static async Task<Message> SendDocument(ITelegramBotClient botClient, Message message, string link) // string name
             {

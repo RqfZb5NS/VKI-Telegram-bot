@@ -20,7 +20,7 @@ namespace VKI_Telegram_bot.Parsers.ci_nsu_ru
             parserData.Name = _name;
         }
 
-        public async Task UpdateAsync()
+        public Task UpdateAsync()
         {
             list.Clear();
             foreach (HtmlAgilityPack.HtmlNode i in doc.DocumentNode.SelectNodes(".//div[@class='file-div']"))
@@ -30,10 +30,6 @@ namespace VKI_Telegram_bot.Parsers.ci_nsu_ru
                 list.Add(new List<string> { name, link });
             }
             parserData.SetDataFromList(list);
-            await UpdateInLineAsync();
-        }
-        public Task UpdateInLineAsync() => Task.Run(() =>
-        {
             List<InlineKeyboardButton[]> bts = new();
             int ctr = 0;
             foreach (var i in list)
@@ -42,6 +38,7 @@ namespace VKI_Telegram_bot.Parsers.ci_nsu_ru
                 ctr++;
             }
             inLine = new InlineKeyboardMarkup(bts);
-        });
+            return Task.CompletedTask;
+        }
     }
 }
