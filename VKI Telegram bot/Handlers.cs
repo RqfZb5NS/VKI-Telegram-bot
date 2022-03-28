@@ -59,7 +59,7 @@ namespace VKI_Telegram_bot
             {
                 if (db.Users.Find(message.Chat.Id) != null)
                 {
-                    if (db.Users.Find(message.Chat.Id).BlackList)
+                    if (db.Users.Find(message.Chat.Id)!.BlackList)
                     {
                         return;
                     }
@@ -77,10 +77,10 @@ namespace VKI_Telegram_bot
             }
             _ = message.Text!.Split(' ')[0] switch
             {
-                "Расписание" => SendInlineKeyboard(botClient, message, Program.timetable.inLine!, "Выберите:"),
-                "Звонки" => SendInlineKeyboard(botClient, message, Program.schedule.InLine!, "Расписание звонков:"),
-                "Списки" => SendInlineKeyboard(botClient, message, Program.sgroup.inLine!, "Выберите:"),
-                "Аттестация" => SendInlineKeyboard(botClient, message, Program.iertification.inLine!, "Выберите:"),
+                "Расписание" => SendInlineKeyboard(botClient, message, Updater.timetable.inLine!, "Выберите:"),
+                "Звонки" => SendInlineKeyboard(botClient, message, Updater.schedule.InLine!, "Расписание звонков:"),
+                "Списки" => SendInlineKeyboard(botClient, message, Updater.sgroup.inLine!, "Выберите:"),
+                "Аттестация" => SendInlineKeyboard(botClient, message, Updater.iertification.inLine!, "Выберите:"),
                 _ => SendKeyboard(botClient, message, defaultKB)
             };
             static async Task<Message> SendInlineKeyboard(ITelegramBotClient botClient, Message message, InlineKeyboardMarkup kb, string text)
@@ -102,9 +102,9 @@ namespace VKI_Telegram_bot
         {
             using (VKITGBContext db = new VKITGBContext())
             {
-                if (db.Users.Find(callbackQuery.Message.Chat.Id) != null)
+                if (db.Users.Find(callbackQuery.Message!.Chat.Id) != null)
                 {
-                    if (db.Users.Find(callbackQuery.Message.Chat.Id).BlackList)
+                    if (db.Users.Find(callbackQuery.Message.Chat.Id)!.BlackList)
                     {
                         return;
                     }
@@ -121,7 +121,7 @@ namespace VKI_Telegram_bot
                 }
             }
             Console.WriteLine($"Id: {callbackQuery.Message.Chat.Id}, CallbackQuery: {callbackQuery.Data}");
-            var action = callbackQuery.Data.Split(' ')[0] switch
+            var action = callbackQuery.Data!.Split(' ')[0] switch
             {
                 "timetable" => SendPDFP(botClient, callbackQuery),
                 "sgroup" => SendSgroup(botClient, callbackQuery),
@@ -132,14 +132,14 @@ namespace VKI_Telegram_bot
             static async Task<Message> SendPDFP(ITelegramBotClient botClient, CallbackQuery callbackQuery)
             {
                 return await SendDocument(botClient, 
-                    callbackQuery.Message,
-                    Program.timetable.list[Convert.ToInt32(callbackQuery.Data.Split(' ')[1])][1]);
+                    callbackQuery.Message!,
+                    Updater.timetable.list[Convert.ToInt32(callbackQuery.Data!.Split(' ')[1])][1]);
             }
             static async Task<Message> SendSgroup(ITelegramBotClient botClient, CallbackQuery callbackQuery)
             {
                 return await SendDocument(botClient,
-                    callbackQuery.Message,
-                    Program.sgroup.list[Convert.ToInt32(callbackQuery.Data.Split(' ')[1])][1]);
+                    callbackQuery.Message!,
+                    Updater.sgroup.list[Convert.ToInt32(callbackQuery.Data!.Split(' ')[1])][1]);
             }
             static async Task<Message> SendDocument(ITelegramBotClient botClient, Message message, string link) // string name
             {

@@ -20,6 +20,9 @@ namespace VKI_Telegram_bot.DB
             else { return new List<List<string>>(); }
         }
         public void SetDataFromList(List<List<string>> list) => JSonData = JsonSerializer.Serialize(list);
-        public bool Compare(ParserData parserData) => parserData.JSonData == JSonData;
+        public bool Compare(ParserData parserData)
+        {
+            return parserData.JSonData == JSonData;
+        }
     }
 }

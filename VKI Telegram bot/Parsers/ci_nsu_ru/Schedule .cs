@@ -15,7 +15,7 @@ namespace VKI_Telegram_bot.Parsers.ci_nsu_ru
             name = _name;
             parserData.Name = _name;
         }
-        public async Task UpdateAsync()
+        public Task UpdateAsync()
         {
             list.Clear();
             int ctr = 0;
@@ -34,12 +34,8 @@ namespace VKI_Telegram_bot.Parsers.ci_nsu_ru
                 .Select(g => g.ToList())
                 .ToList();
             parserData.SetDataFromList(list);
-            await UpdateInLineAsync();
-        }
-        public Task UpdateInLineAsync() => Task.Run(() =>
-        {
             List<List<InlineKeyboardButton>> bts = new();
-            int ctr = 0;
+            ctr = 0;
             foreach (var i in list)
             {
                 List<InlineKeyboardButton> bts2 = new();
@@ -51,6 +47,23 @@ namespace VKI_Telegram_bot.Parsers.ci_nsu_ru
                 bts.Add(bts2);
             }
             InLine = new InlineKeyboardMarkup(bts);
-        });
+            return Task.CompletedTask;
+        }
+        //public Task UpdateInLineAsync() => Task.Run(() =>
+        //{
+        //    List<List<InlineKeyboardButton>> bts = new();
+        //    int ctr = 0;
+        //    foreach (var i in list)
+        //    {
+        //        List<InlineKeyboardButton> bts2 = new();
+        //        foreach (var j in i)
+        //        {
+        //            bts2.Add(InlineKeyboardButton.WithCallbackData(j, $"{name} {ctr}"));
+        //            ctr++;
+        //        }
+        //        bts.Add(bts2);
+        //    }
+        //    InLine = new InlineKeyboardMarkup(bts);
+        //});
     }
 }
