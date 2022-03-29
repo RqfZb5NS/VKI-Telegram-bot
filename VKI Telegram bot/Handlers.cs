@@ -6,12 +6,14 @@ using Telegram.Bot.Types.InputFiles;
 using Telegram.Bot.Types.ReplyMarkups;
 using VKI_Telegram_bot.DB;
 using VKI_Telegram_bot;
-
+//using NLog;
 
 namespace VKI_Telegram_bot
 {
     public class Handlers
     {
+        
+
         static ReplyKeyboardMarkup defaultKB = new(
             new[]
             {
@@ -54,7 +56,7 @@ namespace VKI_Telegram_bot
         {
             if (message.Type != MessageType.Text)
                 return;
-            Console.WriteLine($"Id: {message.Chat.Id}, Text: {message.Text}");
+            Log.Info($"Id: {message.Chat.Id}, Text: {message.Text}");
             using(VKITGBContext db = new VKITGBContext())
             {
                 if (db.Users.Find(message.Chat.Id) != null)
@@ -100,6 +102,7 @@ namespace VKI_Telegram_bot
         }
         private static async Task BotOnCallbackQueryReceived(ITelegramBotClient botClient, CallbackQuery callbackQuery)
         {
+            Log.Info($"Id: {callbackQuery.Message!.Chat.Id}, Text: {callbackQuery.Data}");
             using (VKITGBContext db = new VKITGBContext())
             {
                 if (db.Users.Find(callbackQuery.Message!.Chat.Id) != null)
@@ -120,7 +123,7 @@ namespace VKI_Telegram_bot
                     _ = db.SaveChangesAsync();
                 }
             }
-            Console.WriteLine($"Id: {callbackQuery.Message.Chat.Id}, CallbackQuery: {callbackQuery.Data}");
+            //Console.WriteLine($"Id: {callbackQuery.Message.Chat.Id}, CallbackQuery: {callbackQuery.Data}");
             var action = callbackQuery.Data!.Split(' ')[0] switch
             {
                 "timetable" => SendPDFP(botClient, callbackQuery),
@@ -151,7 +154,8 @@ namespace VKI_Telegram_bot
         }
         private static Task UnknownUpdateHandlerAsync(ITelegramBotClient botClient, Update update)
         {
-            Console.WriteLine($"Unknown update type: {update.Type}");
+            Log.Warn($"Unknown update type: {update.Type}");
+            //Console.WriteLine($"Unknown update type: {update.Type}");
             return Task.CompletedTask;
         }
     }
