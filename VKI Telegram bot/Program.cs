@@ -15,8 +15,12 @@ public static class Program
 
     public static async Task Main()
     {
-        Console.CancelKeyPress += new ConsoleCancelEventHandler(ConsoleCancerHandler);
-
+        Console.CancelKeyPress += new ConsoleCancelEventHandler((object sender, ConsoleCancelEventArgs args) =>
+        {
+            Log.Info("Закрытие приложения");
+            cts.Cancel();
+            cts.Dispose();
+        });
         Telegram.Bot.Types.User me = await tb.GetMeAsync();
         Console.Title = me.Username ?? "VKI Telegram bot";
         ReceiverOptions receiverOptions = new() { AllowedUpdates = { } };
@@ -26,15 +30,10 @@ public static class Program
                            Handlers.HandleErrorAsync,
                            receiverOptions,
                            cts.Token);
-        Console.WriteLine($"Start listening for @{me.Username}");
+        Log.Info($"Start listening for @{ me.Username}");
         Console.ReadLine();
         cts.Cancel();
         cts.Dispose();
-    }
-    private static void ConsoleCancerHandler(object sender, ConsoleCancelEventArgs args)
-    {
-        Console.WriteLine("закрытие приложения");
-        cts.Cancel();
-        cts.Dispose();
+        Log.Info("Закрытие приложения");
     }
 }

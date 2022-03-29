@@ -25,18 +25,21 @@ namespace VKI_Telegram_bot
             {
                 while (!ctn.IsCancellationRequested)
                 {
-                    Console.WriteLine("Обновление парсеров");
+                    Log.Info("Обновление парсеров");
+                    //Console.WriteLine("Обновление парсеров");
                     await Update(iertification, "Промежуточная аттестация обновилась");
                     await Update(sgroup, "Списки групп обновились");
                     await Update(timetable, "Расписание обновилось");
                     await Update(schedule, "Расписание звонков обновилось");
-                    Console.WriteLine("Парсеры обновлены");
+                    Log.Info("Парсеры обновлены");
+                    //Console.WriteLine("Парсеры обновлены");
                     ctn.WaitHandle.WaitOne(AppSettings.settings.UpdaterAwait);
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"{ex.Message}");
+                Log.Warn($"{ex.Message}");
+                //Console.WriteLine($"{ex.Message}");
             }
         }
         public static async Task Update(Schedule parser, string messege)
@@ -46,7 +49,7 @@ namespace VKI_Telegram_bot
             {
                 if (db.ParserDataes.Find(parser.name) != null)
                 {
-                    if (!parser.parserData.Compare(db.ParserDataes.Find(parser.name)!))
+                    if (parser.parserData.JSonData != db.ParserDataes.Find(parser.name)!.JSonData)
                     {
                         foreach (var user in db.Users.ToList())
                         {
@@ -56,7 +59,8 @@ namespace VKI_Telegram_bot
                             }
                             catch (Exception ex)
                             {
-                                Console.WriteLine($"EX: {ex.Message}, USER: Id={user.Id}, Name={user.Name}");
+                                Log.Warn($"EX: {ex.Message}, USER: Id={user.Id}, Name={user.Name}");
+                                //Console.WriteLine($"EX: {ex.Message}, USER: Id={user.Id}, Name={user.Name}");
                             }
                         }
                         db.ParserDataes.Find(parser.name)!.JSonData = parser.parserData.JSonData;
@@ -76,7 +80,7 @@ namespace VKI_Telegram_bot
             {
                 if (db.ParserDataes.Find(parser.name) != null)
                 {
-                    if (!parser.parserData.Compare(db.ParserDataes.Find(parser.name)!))
+                    if (parser.parserData.JSonData != db.ParserDataes.Find(parser.name)!.JSonData)
                     {
                         foreach (var user in db.Users.ToList())
                         {
@@ -86,7 +90,8 @@ namespace VKI_Telegram_bot
                             }
                             catch (Exception ex)
                             {
-                                Console.WriteLine($"EX: {ex.Message}, USER: Id={user.Id}, Name={user.Name}");
+                                Log.Warn($"EX: {ex.Message}, USER: Id={user.Id}, Name={user.Name}");
+                                //Console.WriteLine($"EX: {ex.Message}, USER: Id={user.Id}, Name={user.Name}");
                             }
                         }
                         db.ParserDataes.Find(parser.name)!.JSonData = parser.parserData.JSonData;
@@ -98,7 +103,6 @@ namespace VKI_Telegram_bot
                 }
                 db.SaveChanges();
             }
-
         }
 
         //private async Task ScheduleUpdate(TelegramBotClient tb, VKITGBContext db)

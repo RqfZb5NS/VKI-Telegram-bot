@@ -16,7 +16,7 @@ namespace VKI_Telegram_bot.DB
         public string? JSonData { get; set; }
         public List<List<string>> GetDataAsList()
         {
-            if (JSonData != null) { return  JsonSerializer.Deserialize<List<List<string>>>(JSonData); }
+            if (JSonData != null) { return  JsonSerializer.Deserialize<List<List<string>>>(JSonData)!; }
             else { return new List<List<string>>(); }
         }
         public void SetDataFromList(List<List<string>> list) => JSonData = JsonSerializer.Serialize(list);
