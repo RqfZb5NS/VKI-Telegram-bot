@@ -68,13 +68,13 @@ namespace VKI_Telegram_bot
                 }
                 else
                 {
-                    db.Users.Add(new DB.User
+                    await db.Users.AddAsync(new DB.User
                     {
                         Id = message.Chat.Id,
                         Name = $"{message.Chat.FirstName} {message.Chat.LastName}",
                         BlackList = false,
                     });
-                    db.SaveChanges();
+                    await db.SaveChangesAsync();
                 }
             }
             _ = message.Text!.Split(' ')[0] switch
@@ -114,42 +114,38 @@ namespace VKI_Telegram_bot
                 }
                 else
                 {
-                    _ = db.Users.AddAsync(new DB.User
+                    await db.Users.AddAsync(new DB.User
                     {
                         Id = callbackQuery.Message.Chat.Id,
                         Name = $"{callbackQuery.Message.Chat.FirstName} {callbackQuery.Message.Chat.LastName}",
                         BlackList = false,
                     });
-                    _ = db.SaveChangesAsync();
+                    await db.SaveChangesAsync();
                 }
             }
             //Console.WriteLine($"Id: {callbackQuery.Message.Chat.Id}, CallbackQuery: {callbackQuery.Data}");
-            var action = callbackQuery.Data!.Split(' ')[0] switch
+            _ = callbackQuery.Data!.Split(' ')[0] switch
             {
-                "timetable" => SendPDFP(botClient, callbackQuery),
-                "sgroup" => SendSgroup(botClient, callbackQuery),
-                "iertification" => SendPDFP(botClient, callbackQuery),
+                "timetable" => SendPDF(botClient, callbackQuery, Updater.timetable.list),
+                "sgroup" => SendPDF(botClient, callbackQuery, Updater.sgroup.list),
+                "iertification" => SendPDF(botClient, callbackQuery, Updater.iertification.list),
                 _ => null,
             };
 
-            static async Task<Message> SendPDFP(ITelegramBotClient botClient, CallbackQuery callbackQuery)
+            static async Task<Message> SendPDF(ITelegramBotClient botClient, CallbackQuery callbackQuery, List<List<string>> list)
             {
                 return await SendDocument(botClient, 
                     callbackQuery.Message!,
-                    Updater.timetable.list[Convert.ToInt32(callbackQuery.Data!.Split(' ')[1])][1]);
-            }
-            static async Task<Message> SendSgroup(ITelegramBotClient botClient, CallbackQuery callbackQuery)
-            {
-                return await SendDocument(botClient,
-                    callbackQuery.Message!,
-                    Updater.sgroup.list[Convert.ToInt32(callbackQuery.Data!.Split(' ')[1])][1]);
+                    Updater.timetable.list[Convert.ToInt32(callbackQuery.Data!.Split(' ')[1])][1]
+                    );
             }
             static async Task<Message> SendDocument(ITelegramBotClient botClient, Message message, string link) // string name
             {
 
                 return await botClient.SendDocumentAsync(
                     chatId: message.Chat.Id,
-                    document: new InputOnlineFile(link));
+                    document: new InputOnlineFile(link)
+                    );
             }
         }
         private static Task UnknownUpdateHandlerAsync(ITelegramBotClient botClient, Update update)

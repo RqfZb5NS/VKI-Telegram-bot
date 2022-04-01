@@ -2,16 +2,11 @@
 {
     public abstract class Parser
     {
-        public string html = string.Empty;
-        public HtmlAgilityPack.HtmlDocument doc = new();
-        public Parser(string url)
-        {
-            GetDoc(url);
-        }
-        private void GetHtml(string url)
+        private string? GetHtml(string url)
         {
             try
             {
+                string html = string.Empty;
                 using (HttpClientHandler hdl = new HttpClientHandler { 
                     AllowAutoRedirect = false, 
                     AutomaticDecompression = System.Net.DecompressionMethods.All 
@@ -32,14 +27,29 @@
                         }
                     }
                 }
+                return html;
             }
-            catch (Exception ex) { Console.WriteLine(ex.Message); return; }
+            catch (Exception ex) 
+            {
+                Log.Warn($"Не получилось получить html \nURL:{url}\nEX: {ex} ", ex);
+                return null;
+            }
         }
-        public HtmlAgilityPack.HtmlDocument GetDoc(string url)
+        public HtmlAgilityPack.HtmlDocument? GetDoc(string url)
         {
-            GetHtml(url);
-            doc.LoadHtml(html);
-            return doc;
+            try
+            {
+                HtmlAgilityPack.HtmlDocument doc = new();
+                string html = GetHtml(url)!;
+                if (string.IsNullOrEmpty(html)) return null;
+                doc.LoadHtml(html);
+                return doc;
+            }
+            catch (Exception ex)
+            {
+                Log.Warn($"Не получилось разобрать html \nURL:{url}\nEX: {ex} ", ex);
+                return null;
+            }
         }
     }
 }

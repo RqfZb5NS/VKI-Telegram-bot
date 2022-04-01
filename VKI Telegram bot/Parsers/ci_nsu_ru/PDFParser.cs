@@ -14,14 +14,22 @@ namespace VKI_Telegram_bot.Parsers.ci_nsu_ru
         public List<List<string>> list = new();
         public InlineKeyboardMarkup? inLine;
         public string name { get; set; }
-        public PDFParser(string url, string _name) : base(url)
+        private readonly string url;
+        public PDFParser(string _url, string _name)
         {
+            url = _url;
             name = _name;
             parserData.Name = _name;
         }
 
         public Task UpdateAsync()
         {
+            var doc = GetDoc(url);
+            if (doc == null) 
+            {
+                Log.Warn($"Документ is null URl: {url}, Name: {name}"); 
+                return Task.CompletedTask;
+            }
             list.Clear();
             foreach (HtmlAgilityPack.HtmlNode i in doc.DocumentNode.SelectNodes(".//div[@class='file-div']"))
             {

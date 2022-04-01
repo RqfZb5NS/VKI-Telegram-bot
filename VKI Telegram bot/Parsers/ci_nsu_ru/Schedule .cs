@@ -9,14 +9,22 @@ namespace VKI_Telegram_bot.Parsers.ci_nsu_ru
         public ParserData parserData = new();
         public List<List<string>> list = new();
         public InlineKeyboardMarkup? InLine;
+        private readonly string url;
         public string name { get; set; }
-        public Schedule(string url, string _name) : base(url)
+        public Schedule(string _url, string _name)
         {
+            url = _url;
             name = _name;
             parserData.Name = _name;
         }
         public Task UpdateAsync()
         {
+            var doc = GetDoc(url);
+            if (doc == null)
+            {
+                Log.Warn($"Документ is null URl: {url}, Name: {name}");
+                return Task.CompletedTask;
+            }
             list.Clear();
             int ctr = 0;
             foreach (var i in doc.DocumentNode.SelectSingleNode(".//table[@class='table']").SelectNodes(".//tr"))
@@ -49,21 +57,5 @@ namespace VKI_Telegram_bot.Parsers.ci_nsu_ru
             InLine = new InlineKeyboardMarkup(bts);
             return Task.CompletedTask;
         }
-        //public Task UpdateInLineAsync() => Task.Run(() =>
-        //{
-        //    List<List<InlineKeyboardButton>> bts = new();
-        //    int ctr = 0;
-        //    foreach (var i in list)
-        //    {
-        //        List<InlineKeyboardButton> bts2 = new();
-        //        foreach (var j in i)
-        //        {
-        //            bts2.Add(InlineKeyboardButton.WithCallbackData(j, $"{name} {ctr}"));
-        //            ctr++;
-        //        }
-        //        bts.Add(bts2);
-        //    }
-        //    InLine = new InlineKeyboardMarkup(bts);
-        //});
     }
 }
