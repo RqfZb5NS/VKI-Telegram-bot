@@ -136,7 +136,7 @@ namespace VKI_Telegram_bot
             {
                 return await SendDocument(botClient, 
                     callbackQuery.Message!,
-                    Updater.timetable.list[Convert.ToInt32(callbackQuery.Data!.Split(' ')[1])][1]
+                    list[Convert.ToInt32(callbackQuery.Data!.Split(' ')[1])][1]
                     );
             }
             static async Task<Message> SendDocument(ITelegramBotClient botClient, Message message, string link) // string name
