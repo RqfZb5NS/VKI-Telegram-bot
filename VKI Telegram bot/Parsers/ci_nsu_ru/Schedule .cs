@@ -9,14 +9,17 @@ namespace VKI_Telegram_bot.Parsers.ci_nsu_ru
         public ParserData parserData = new();
         public List<List<string>> list = new();
         public InlineKeyboardMarkup? InLine;
+        private readonly string url;
         public string name { get; set; }
-        public Schedule(string url, string _name) : base(url)
+        public Schedule(string _url, string _name)
         {
+            url = _url;
             name = _name;
             parserData.Name = _name;
         }
         public Task UpdateAsync()
         {
+            GetDoc(url);
             list.Clear();
             int ctr = 0;
             foreach (var i in doc.DocumentNode.SelectSingleNode(".//table[@class='table']").SelectNodes(".//tr"))

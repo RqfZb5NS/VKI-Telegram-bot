@@ -4,10 +4,6 @@
     {
         public string html = string.Empty;
         public HtmlAgilityPack.HtmlDocument doc = new();
-        public Parser(string url)
-        {
-            GetDoc(url);
-        }
         private void GetHtml(string url)
         {
             try
