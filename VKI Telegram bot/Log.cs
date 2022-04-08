@@ -10,6 +10,7 @@ namespace VKI_Telegram_bot
     public static class Log
     {
         private static Logger logger = LogManager.GetCurrentClassLogger();
+        
         public static void Info(string messege)
         {
             logger.Info(messege);

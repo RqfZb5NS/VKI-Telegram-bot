@@ -39,6 +39,7 @@ namespace VKI_Telegram_bot.Parsers.ci_nsu_ru
             }
             parserData.SetDataFromList(list);
             List<InlineKeyboardButton[]> bts = new();
+            bts.Add(new InlineKeyboardButton[] { InlineKeyboardButton.WithCallbackData("Меню", "main") });
             int ctr = 0;
             foreach (var i in list)
             {

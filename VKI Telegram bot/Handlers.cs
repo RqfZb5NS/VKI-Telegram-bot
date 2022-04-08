@@ -6,20 +6,21 @@ using Telegram.Bot.Types.InputFiles;
 using Telegram.Bot.Types.ReplyMarkups;
 using VKI_Telegram_bot.DB;
 using VKI_Telegram_bot;
+using VKI_Telegram_bot.Parsers.ci_nsu_ru;
 //using NLog;
 
 namespace VKI_Telegram_bot
 {
     public class Handlers
     {
-        
 
-        static ReplyKeyboardMarkup defaultKB = new(
+
+        static InlineKeyboardMarkup defaultKB = new(
             new[]
             {
-                new KeyboardButton[] { "Расписание", "Звонки"},
-                new KeyboardButton[] { "Списки", "Аттестация" },
-            }) { ResizeKeyboard = true };
+                new InlineKeyboardButton[] { InlineKeyboardButton.WithCallbackData("Расписание", "timetable"), InlineKeyboardButton.WithCallbackData("Звонки", "cschedule") },
+                new InlineKeyboardButton[] { InlineKeyboardButton.WithCallbackData("Списки", "sgroup"), InlineKeyboardButton.WithCallbackData("Аттестация", "iertification") },
+            }); //{ ResizeKeyboard = true };
         public static Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
         {
             var ErrorMessage = exception switch
@@ -79,26 +80,22 @@ namespace VKI_Telegram_bot
             }
             _ = message.Text!.Split(' ')[0] switch
             {
-                "Расписание" => SendInlineKeyboard(botClient, message, Updater.timetable.inLine!, "Выберите:"),
-                "Звонки" => SendInlineKeyboard(botClient, message, Updater.schedule.InLine!, "Расписание звонков:"),
-                "Списки" => SendInlineKeyboard(botClient, message, Updater.sgroup.inLine!, "Выберите:"),
-                "Аттестация" => SendInlineKeyboard(botClient, message, Updater.iertification.inLine!, "Выберите:"),
-                _ => SendKeyboard(botClient, message, defaultKB)
+                //"log" => SendLogs(botClient, message),
+                _ => botClient.SendTextMessageAsync(
+                    chatId: message.Chat.Id,
+                    text: "Меню",
+                    replyMarkup: defaultKB
+                    )
             };
-            static async Task<Message> SendInlineKeyboard(ITelegramBotClient botClient, Message message, InlineKeyboardMarkup kb, string text)
-            {
-                return await botClient.SendTextMessageAsync(chatId: message.Chat.Id,
-                                                            text: text,
-                                                            replyMarkup: kb
-                                                            );
-            }
 
-            static async Task<Message> SendKeyboard(ITelegramBotClient botClient, Message message, ReplyKeyboardMarkup kb)
-            {
-                return await botClient.SendTextMessageAsync(chatId: message.Chat.Id,
-                                                            text: "Выберите:",
-                                                            replyMarkup: kb);
-            }
+            //static async Task<Message> SendLogs(ITelegramBotClient botClient, Message message)
+            //{
+            //    using (StreamReader reader = new StreamReader(path))
+            //    {
+            //        return await botClient.SendDocumentAsync(chatId: message.Chat.Id, await reader.ReadToEndAsync());
+            //    }
+                
+            //}
         }
         private static async Task BotOnCallbackQueryReceived(ITelegramBotClient botClient, CallbackQuery callbackQuery)
         {
@@ -126,18 +123,46 @@ namespace VKI_Telegram_bot
             //Console.WriteLine($"Id: {callbackQuery.Message.Chat.Id}, CallbackQuery: {callbackQuery.Data}");
             _ = callbackQuery.Data!.Split(' ')[0] switch
             {
-                "timetable" => SendPDF(botClient, callbackQuery, Updater.timetable.list),
-                "sgroup" => SendPDF(botClient, callbackQuery, Updater.sgroup.list),
-                "iertification" => SendPDF(botClient, callbackQuery, Updater.iertification.list),
+                "main" => botClient.EditMessageTextAsync(
+                    callbackQuery.Message.Chat.Id,
+                    callbackQuery.Message.MessageId,
+                    "Меню",
+                    replyMarkup: defaultKB),
+                "timetable" => SendPDF(botClient, callbackQuery, Updater.timetable),
+                "sgroup" => SendPDF(botClient, callbackQuery, Updater.sgroup),
+                "iertification" => SendPDF(botClient, callbackQuery, Updater.iertification),
+                "cschedule" => botClient.EditMessageTextAsync(
+                    callbackQuery.Message.Chat.Id, 
+                    callbackQuery.Message.MessageId, 
+                    "Звонки", 
+                    replyMarkup: Updater.schedule.InLine),
                 _ => null,
             };
 
-            static async Task<Message> SendPDF(ITelegramBotClient botClient, CallbackQuery callbackQuery, List<List<string>> list)
+            static async Task<Message> SendPDF(ITelegramBotClient botClient, CallbackQuery callbackQuery, PDFParser pdfp)
             {
-                return await SendDocument(botClient, 
-                    callbackQuery.Message!,
-                    list[Convert.ToInt32(callbackQuery.Data!.Split(' ')[1])][1]
-                    );
+                if (callbackQuery.Data!.Split(' ').Length == 1)
+                {
+                    return await botClient.EditMessageTextAsync(
+                        callbackQuery.Message!.Chat.Id,
+                        callbackQuery.Message.MessageId,
+                        pdfp.name,
+                        replyMarkup: pdfp.inLine
+                        );
+                }
+                else
+                {
+                    await botClient.EditMessageTextAsync(
+                        callbackQuery.Message!.Chat.Id,
+                        callbackQuery.Message.MessageId,
+                        "Меню",
+                        replyMarkup: defaultKB
+                        );
+                    return await SendDocument(botClient,
+                        callbackQuery.Message!,
+                        pdfp.list[Convert.ToInt32(callbackQuery.Data!.Split(' ')[1])][1]
+                        );
+                }
             }
             static async Task<Message> SendDocument(ITelegramBotClient botClient, Message message, string link) // string name
             {
