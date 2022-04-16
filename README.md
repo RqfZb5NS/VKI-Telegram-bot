@@ -21,4 +21,3 @@
 
 Александр Батанов - [@Hiter67](https://github.com/Hiter67)
 Владимир Кузнецов - [@NicholasValentain](https://github.com/NicholasValentain)
-Мартынкьян Кирилл - ***************
