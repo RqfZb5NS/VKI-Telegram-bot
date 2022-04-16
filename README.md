@@ -5,7 +5,7 @@
 ## Добавление
 
 Чтобы начать пользоваться ботом, нужно создать с ним чат в Telegram.
-**Бот - [@raspisanie_vki_bot](@raspisanie_vki_bot)**
+**Бот - [https://t.me/raspisanie_vki_bot](@raspisanie_vki_bot)**
 
 ## Использование
 
