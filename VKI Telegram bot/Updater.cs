@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Telegram.Bot;
+﻿using Telegram.Bot;
 using VKI_Telegram_bot.DB;
 using VKI_Telegram_bot.Parsers.ci_nsu_ru;
 
@@ -11,16 +6,16 @@ namespace VKI_Telegram_bot
 {
     public static class Updater
     {
-        public static PDFParser iertification = new PDFParser("https://ci.nsu.ru/education/raspisanie-ekzamenov/", "iertification");
-        public static PDFParser sgroup = new PDFParser("https://ci.nsu.ru/education/spisok-uchebnykh-grupp/", "sgroup");
-        public static PDFParser timetable = new("https://ci.nsu.ru/education/schedule/", "timetable");
-        public static Schedule schedule = new Schedule("https://ci.nsu.ru/education/raspisanie-zvonkov/", "cschedule");
+        public static PdfParser iertification = new("https://ci.nsu.ru/education/raspisanie-ekzamenov/", "iertification");
+        public static PdfParser sgroup = new("https://ci.nsu.ru/education/spisok-uchebnykh-grupp/", "sgroup");
+        public static PdfParser timetable = new("https://ci.nsu.ru/education/schedule/", "timetable");
+        public static Schedule schedule = new("https://ci.nsu.ru/education/raspisanie-zvonkov/", "cschedule");
 
-        private static TelegramBotClient tb;
+        private static TelegramBotClient? _tb;
 
-        public static async Task Start(TelegramBotClient _tb, CancellationToken ctn)
+        public static async Task Start(TelegramBotClient? tb, CancellationToken ctn)
         {
-            tb = _tb;
+            Updater._tb = tb;
             try
             {
                 while (!ctn.IsCancellationRequested)
@@ -33,7 +28,7 @@ namespace VKI_Telegram_bot
                     await Update(schedule, "Расписание звонков обновилось");
                     Log.Info("Парсеры обновлены");
                     //Console.WriteLine("Парсеры обновлены");
-                    ctn.WaitHandle.WaitOne(AppSettings.settings.UpdaterAwait);
+                    ctn.WaitHandle.WaitOne(AppSettings.Settings.UpdaterAwait);
                 }
             }
             catch (Exception ex)
@@ -42,178 +37,74 @@ namespace VKI_Telegram_bot
                 //Console.WriteLine($"{ex.Message}");
             }
         }
-        public static async Task Update(Schedule parser, string messege)
+        public static async Task Update(Schedule parser, string msg)
         {
             await parser.UpdateAsync();
-            using (VKITGBContext db = new VKITGBContext())
+            await using var db = new DataBaseContext();
+            if (await db.ParserDataes.FindAsync(parser.Name) != null)
             {
-                if (db.ParserDataes.Find(parser.name) != null)
+                if (parser.parserData.JSonData != (await db.ParserDataes.FindAsync(parser.Name))!.JSonData)
                 {
-                    if (parser.parserData.JSonData != db.ParserDataes.Find(parser.name)!.JSonData)
+                    foreach (var user in db.Users.ToList())
                     {
-                        foreach (var user in db.Users.ToList())
+                        try
                         {
-                            try
-                            {
-                                await tb.SendTextMessageAsync(chatId: user.Id, text: messege);
-                            }
-                            catch (Exception ex)
-                            {
-                                Log.Warn($"EX: {ex.Message}, USER: Id={user.Id}, Name={user.Name}");
-                                //Console.WriteLine($"EX: {ex.Message}, USER: Id={user.Id}, Name={user.Name}");
-                            }
+                            await _tb!.SendTextMessageAsync(chatId: user.Id, text: msg);
                         }
-                        db.ParserDataes.Find(parser.name)!.JSonData = parser.parserData.JSonData;
+                        //catch()
+                        //{
+
+                        //}
+                        catch (Exception ex)
+                        {
+                            Log.Warn($"EX: {ex}, USER: Id={user.Id}, Name={user.Name}");
+                            //Console.WriteLine($"EX: {ex.Message}, USER: Id={user.Id}, Name={user.Name}");
+                        }
                     }
+                    (await db.ParserDataes.FindAsync(parser.Name))!.JSonData = parser.parserData.JSonData;
                 }
-                else
-                {
-                    db.ParserDataes.Add(parser.parserData);
-                }
-                db.SaveChanges();
             }
+            else
+            {
+                db.ParserDataes.Add(parser.parserData);
+            }
+            await db.SaveChangesAsync();
         }
-        public static async Task Update(PDFParser parser, string messege)
+        public static async Task Update(PdfParser parser, string msg)
         {
             await parser.UpdateAsync();
-            using (VKITGBContext db = new VKITGBContext())
+            await using DataBaseContext db = new();
+            if (await db.ParserDataes.FindAsync(parser.Name) != null)
             {
-                if (db.ParserDataes.Find(parser.name) != null)
+                if (parser.parserData.JSonData != (await db.ParserDataes.FindAsync(parser.Name))!.JSonData)
                 {
-                    if (parser.parserData.JSonData != db.ParserDataes.Find(parser.name)!.JSonData)
+                    foreach (var user in db.Users.ToList())
                     {
-                        foreach (var user in db.Users.ToList())
+                        try
                         {
-                            try
+                            await _tb!.SendTextMessageAsync(chatId: user.Id, text: msg);
+                        }
+                        catch (Telegram.Bot.Exceptions.RequestException ex)
+                        {
+                            if (ex.Message == "Forbidden: bot was blocked by the user")
                             {
-                                await tb.SendTextMessageAsync(chatId: user.Id, text: messege);
-                            }
-                            catch (Exception ex)
-                            {
-                                Log.Warn($"EX: {ex.Message}, USER: Id={user.Id}, Name={user.Name}");
-                                //Console.WriteLine($"EX: {ex.Message}, USER: Id={user.Id}, Name={user.Name}");
+                                Log.Info($"EX: {ex.Message}, USER: Id={user.Id}, Name={user.Name}");
+                                db.Users.Remove(user);
                             }
                         }
-                        db.ParserDataes.Find(parser.name)!.JSonData = parser.parserData.JSonData;
+                        catch (Exception ex)
+                        {
+                            Log.Error($"USER: Id={user.Id}, Name={user.Name}", ex);
+                        }
                     }
+                    (await db.ParserDataes.FindAsync(parser.Name))!.JSonData = parser.parserData.JSonData;
                 }
-                else
-                {
-                    db.ParserDataes.Add(parser.parserData);
-                }
-                db.SaveChanges();
             }
+            else
+            {
+                db.ParserDataes.Add(parser.parserData);
+            }
+            await db.SaveChangesAsync();
         }
-
-        //private async Task ScheduleUpdate(TelegramBotClient tb, VKITGBContext db)
-        //{
-        //    await schedule.UpdateAsync();
-        //    if (db.ParserDataes.Find(schedule.name) != null)
-        //    {
-        //        if (!schedule.parserData.Compare(db.ParserDataes.Find(schedule.name)!))
-        //        {
-        //            foreach (var user in db.Users.ToList())
-        //            {
-        //                try
-        //                {
-        //                    await tb.SendTextMessageAsync(chatId: user.Id, text: "Расписание звонков обновилось");
-        //                }
-        //                catch (Exception ex)
-        //                {
-        //                    Console.WriteLine($"{ex.Message} {user.Id} {user.Name}");
-        //                }
-        //            }
-        //            db.ParserDataes.Find(schedule.name)!.JSonData = schedule.parserData.JSonData;
-        //        }
-        //    }
-        //    else
-        //    {
-        //        db.ParserDataes.Add(schedule.parserData);
-        //    }
-        //}
-
-        //private async Task TimetableUpdate(TelegramBotClient tb, VKITGBContext db)
-        //{
-        //    await timetable.UpdateAsync();
-        //    if (db.ParserDataes.Find(timetable.name) != null)
-        //    {
-        //        if (!timetable.parserData.Compare(db.ParserDataes.Find(timetable.name)!))
-        //        {
-        //            foreach (var user in db.Users.ToList())
-        //            {
-        //                try
-        //                {
-        //                    await tb.SendTextMessageAsync(chatId: user.Id, text: "Расписание обновилось");
-        //                }
-        //                catch (Exception ex)
-        //                {
-        //                    Console.WriteLine($"{ex.Message} {user.Id} {user.Name}");
-        //                }
-        //            }
-        //            db.ParserDataes.Find(timetable.name)!.JSonData = timetable.parserData.JSonData;
-
-        //        }
-        //    }
-        //    else
-        //    {
-        //        db.ParserDataes.Add(timetable.parserData);
-        //    }
-        //}
-
-        //private async Task SgroupUpdate(TelegramBotClient tb, VKITGBContext db)
-        //{
-        //    await sgroup.UpdateAsync();
-        //    if (db.ParserDataes.Find(sgroup.name) != null)
-        //    {
-        //        if (!sgroup.parserData.Compare(db.ParserDataes.Find(sgroup.name)!))
-        //        {
-        //            foreach (var user in db.Users.ToList())
-        //            {
-        //                try
-        //                {
-        //                    await tb.SendTextMessageAsync(chatId: user.Id, text: "Списки групп обновились");
-        //                }
-        //                catch (Exception ex)
-        //                {
-        //                    Console.WriteLine($"{ex.Message} {user.Id} {user.Name}");
-        //                }
-        //            }
-        //            db.ParserDataes.Find(sgroup.name)!.JSonData = sgroup.parserData.JSonData;
-
-        //        }
-        //    }
-        //    else
-        //    {
-        //        db.ParserDataes.Add(sgroup.parserData);
-        //    }
-        //}
-
-        //private async Task IertificationUpdate(TelegramBotClient tb, VKITGBContext db)
-        //{
-        //    await iertification.UpdateAsync();
-        //    if (db.ParserDataes.Find(iertification.name) != null)
-        //    {
-        //        if (!iertification.parserData.Compare(db.ParserDataes.Find(iertification.name)))
-        //        {
-        //            foreach (var user in db.Users.ToList())
-        //            {
-        //                try
-        //                {
-        //                    await tb.SendTextMessageAsync(chatId: user.Id, text: "Промежуточная аттестация обновилась");
-        //                }
-        //                catch (Exception ex)
-        //                {
-        //                    Console.WriteLine($"{ex.Message} {user.Id} {user.Name}");
-        //                }
-
-        //            }
-        //            db.ParserDataes.Find(iertification.name)!.JSonData = iertification.parserData.JSonData;
-        //        }
-        //    }
-        //    else
-        //    {
-        //        db.ParserDataes.Add(iertification.parserData);
-        //    }
-        //}
     }
 }

@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace VKI_Telegram_bot.DB
+namespace VKI_Telegram_bot.DB.Entities
 {
     public class User
     {

@@ -5,7 +5,8 @@ using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.InputFiles;
 using Telegram.Bot.Types.ReplyMarkups;
 using VKI_Telegram_bot.DB;
-using VKI_Telegram_bot;
+using User = VKI_Telegram_bot.DB.Entities.User;
+
 //using NLog;
 
 namespace VKI_Telegram_bot
@@ -22,13 +23,13 @@ namespace VKI_Telegram_bot
             }) { ResizeKeyboard = true };
         public static Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
         {
-            var ErrorMessage = exception switch
+            var errorMessage = exception switch
             {
                 ApiRequestException apiRequestException => $"Telegram API Error:\n[{apiRequestException.ErrorCode}]\n{apiRequestException.Message}",
                 _ => exception.ToString()
             };
 
-            Console.WriteLine(ErrorMessage);
+            Console.WriteLine(errorMessage);
             return Task.CompletedTask;
         }
 
@@ -39,6 +40,7 @@ namespace VKI_Telegram_bot
                 UpdateType.Message => BotOnMessageReceived(botClient, update.Message!),
                 UpdateType.EditedMessage => BotOnMessageReceived(botClient, update.EditedMessage!),
                 UpdateType.CallbackQuery => BotOnCallbackQueryReceived(botClient, update.CallbackQuery!),
+                /*UpdateType.MyChatMember => BotOnMyChatMemberReceived(botClient, update.MyChatMember!),*/
                 _ => UnknownUpdateHandlerAsync(botClient, update)
             };
 
@@ -57,7 +59,7 @@ namespace VKI_Telegram_bot
             if (message.Type != MessageType.Text)
                 return;
             Log.Info($"Id: {message.Chat.Id}, Text: {message.Text}");
-            using(VKITGBContext db = new VKITGBContext())
+            using(DataBaseContext db = new DataBaseContext())
             {
                 if (db.Users.Find(message.Chat.Id) != null)
                 {
@@ -68,7 +70,7 @@ namespace VKI_Telegram_bot
                 }
                 else
                 {
-                    await db.Users.AddAsync(new DB.User
+                    await db.Users.AddAsync(new User
                     {
                         Id = message.Chat.Id,
                         Name = $"{message.Chat.FirstName} {message.Chat.LastName}",
@@ -80,7 +82,7 @@ namespace VKI_Telegram_bot
             _ = message.Text!.Split(' ')[0] switch
             {
                 "Расписание" => SendInlineKeyboard(botClient, message, Updater.timetable.inLine!, "Выберите:"),
-                "Звонки" => SendInlineKeyboard(botClient, message, Updater.schedule.InLine!, "Расписание звонков:"),
+                "Звонки" => SendInlineKeyboard(botClient, message, Updater.schedule.inLine!, "Расписание звонков:"),
                 "Списки" => SendInlineKeyboard(botClient, message, Updater.sgroup.inLine!, "Выберите:"),
                 "Аттестация" => SendInlineKeyboard(botClient, message, Updater.iertification.inLine!, "Выберите:"),
                 _ => SendKeyboard(botClient, message, defaultKB)
@@ -103,7 +105,7 @@ namespace VKI_Telegram_bot
         private static async Task BotOnCallbackQueryReceived(ITelegramBotClient botClient, CallbackQuery callbackQuery)
         {
             Log.Info($"Id: {callbackQuery.Message!.Chat.Id}, Text: {callbackQuery.Data}");
-            using (VKITGBContext db = new VKITGBContext())
+            using (DataBaseContext db = new DataBaseContext())
             {
                 if (db.Users.Find(callbackQuery.Message!.Chat.Id) != null)
                 {
@@ -114,7 +116,7 @@ namespace VKI_Telegram_bot
                 }
                 else
                 {
-                    await db.Users.AddAsync(new DB.User
+                    await db.Users.AddAsync(new User
                     {
                         Id = callbackQuery.Message.Chat.Id,
                         Name = $"{callbackQuery.Message.Chat.FirstName} {callbackQuery.Message.Chat.LastName}",
@@ -126,13 +128,13 @@ namespace VKI_Telegram_bot
             //Console.WriteLine($"Id: {callbackQuery.Message.Chat.Id}, CallbackQuery: {callbackQuery.Data}");
             _ = callbackQuery.Data!.Split(' ')[0] switch
             {
-                "timetable" => SendPDF(botClient, callbackQuery, Updater.timetable.list),
-                "sgroup" => SendPDF(botClient, callbackQuery, Updater.sgroup.list),
-                "iertification" => SendPDF(botClient, callbackQuery, Updater.iertification.list),
+                "timetable" => SendPdf(botClient, callbackQuery, Updater.timetable.list),
+                "sgroup" => SendPdf(botClient, callbackQuery, Updater.sgroup.list),
+                "iertification" => SendPdf(botClient, callbackQuery, Updater.iertification.list),
                 _ => null,
             };
 
-            static async Task<Message> SendPDF(ITelegramBotClient botClient, CallbackQuery callbackQuery, List<List<string>> list)
+            static async Task<Message> SendPdf(ITelegramBotClient botClient, CallbackQuery callbackQuery, List<List<string>> list)
             {
                 return await SendDocument(botClient, 
                     callbackQuery.Message!,
@@ -148,6 +150,11 @@ namespace VKI_Telegram_bot
                     );
             }
         }
+        /*private static Task BotOnMyChatMemberReceived(ITelegramBotClient botClient, ChatMemberUpdated chatMemberUpdated)
+        {
+            //chatMemberUpdated.NewChatMember
+            return Task.CompletedTask;
+        }*/
         private static Task UnknownUpdateHandlerAsync(ITelegramBotClient botClient, Update update)
         {
             Log.Warn($"Unknown update type: {update.Type}");

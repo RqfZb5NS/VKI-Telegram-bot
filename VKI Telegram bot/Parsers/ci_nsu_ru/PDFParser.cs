@@ -1,33 +1,28 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Telegram.Bot.Types.ReplyMarkups;
-using VKI_Telegram_bot.DB;
+﻿using Telegram.Bot.Types.ReplyMarkups;
+using VKI_Telegram_bot.DB.Entities;
 
 namespace VKI_Telegram_bot.Parsers.ci_nsu_ru
 {
-    public class PDFParser : Parser
+    public class PdfParser : Parser
     {
         public ParserData parserData = new();
         public List<List<string>> list = new();
         public InlineKeyboardMarkup? inLine;
-        public string name { get; set; }
-        private readonly string url;
-        public PDFParser(string _url, string _name)
+        public string Name { get; set; }
+        private readonly string _url;
+        public PdfParser(string url, string name)
         {
-            url = _url;
-            name = _name;
-            parserData.Name = _name;
+            this._url = url;
+            Name = name;
+            parserData.Name = name;
         }
 
         public Task UpdateAsync()
         {
-            var doc = GetDoc(url);
+            var doc = GetDoc(_url);
             if (doc == null) 
             {
-                Log.Warn($"Документ is null URl: {url}, Name: {name}"); 
+                Log.Warn($"Документ is null URl: {_url}, Name: {Name}"); 
                 return Task.CompletedTask;
             }
             list.Clear();
@@ -42,7 +37,7 @@ namespace VKI_Telegram_bot.Parsers.ci_nsu_ru
             int ctr = 0;
             foreach (var i in list)
             {
-                bts.Add(new InlineKeyboardButton[] { InlineKeyboardButton.WithCallbackData(i[0], $"{name} {ctr}") });
+                bts.Add(new[] { InlineKeyboardButton.WithCallbackData(i[0], $"{Name} {ctr}") });
                 ctr++;
             }
             inLine = new InlineKeyboardMarkup(bts);

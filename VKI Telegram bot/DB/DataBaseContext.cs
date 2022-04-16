@@ -1,19 +1,15 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using VKI_Telegram_bot.DB.Entities;
 
 namespace VKI_Telegram_bot.DB
 {
-    internal class VKITGBContext : DbContext
+    internal class DataBaseContext : DbContext
     {
         public DbSet<User> Users { get; set; }
         public DbSet<ParserData> ParserDataes { get; set; }
         
 
-        public VKITGBContext()
+        public DataBaseContext()
         {
             Database.EnsureCreated();
         }

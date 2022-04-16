@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using NLog;
+﻿using NLog;
 
 namespace VKI_Telegram_bot
 {
@@ -26,7 +21,7 @@ namespace VKI_Telegram_bot
         {
             logger.Warn(ex, messege);
         }
-        public static void Eror(string messege, Exception ex)
+        public static void Error(string messege, Exception ex)
         {
             logger.Error(ex, messege);
         }

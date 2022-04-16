@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
-using Telegram.Bot.Types.ReplyMarkups;
 
-namespace VKI_Telegram_bot.DB
+namespace VKI_Telegram_bot.DB.Entities
 {
     public class ParserData
     {

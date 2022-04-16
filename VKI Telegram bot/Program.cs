@@ -1,26 +1,20 @@
-﻿using VKI_Telegram_bot;
-using Telegram.Bot;
+﻿using Telegram.Bot;
 using Telegram.Bot.Extensions.Polling;
-using Telegram.Bot.Types;
-using VKI_Telegram_bot.Parsers.ci_nsu_ru;
-using VKI_Telegram_bot.DB;
 
 namespace VKI_Telegram_bot;
 public static class Program
 {
-
-
-    public static CancellationTokenSource cts = new CancellationTokenSource();
-    public static TelegramBotClient tb = new TelegramBotClient(AppSettings.settings.BotApiKey);
+    public static CancellationTokenSource cts = new();
+    public static TelegramBotClient? tb = new(AppSettings.Settings.BotApiKey);
 
     public static async Task Main()
     {
-        Console.CancelKeyPress += new ConsoleCancelEventHandler((object sender, ConsoleCancelEventArgs args) =>
+        Console.CancelKeyPress += (sender, args) =>
         {
             Log.Info("Закрытие приложения");
             cts.Cancel();
             cts.Dispose();
-        });
+        };
         Telegram.Bot.Types.User me = await tb.GetMeAsync();
         Console.Title = me.Username ?? "VKI Telegram bot";
         ReceiverOptions receiverOptions = new() { AllowedUpdates = { } };

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json;
-using System.Threading.Tasks;
+﻿using System.Text.Json;
 
 namespace VKI_Telegram_bot
 {
@@ -15,10 +10,10 @@ namespace VKI_Telegram_bot
     }
     public static class AppSettings
     {
-        public static Settings settings { get; set; }
+        public static Settings Settings { get; set; }
         static AppSettings()
         {
-            settings = JsonSerializer.Deserialize<Settings>(File.ReadAllText("appsettings.json"));
+            Settings = JsonSerializer.Deserialize<Settings>(File.ReadAllText("appsettings.json"));
         }
     }
 }
