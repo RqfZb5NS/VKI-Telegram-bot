@@ -32,7 +32,7 @@
 
   <ItemGroup>
     <Compile Update="Handlers.cs">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Compile>
   </ItemGroup>
 
