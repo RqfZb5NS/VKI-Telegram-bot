@@ -13,7 +13,7 @@ $ Docker build -t vki-bot ./publish
 ```
 Создаём Docker контейнер с нужными параметрами
 ```
-$ docker run --name vki-bot-test -e TELEGRAM_TOKEN=token -e UPDATER_WAIT=1800000 vki-bot
+$ docker run -it --name vki-bot-test -e TELEGRAM_TOKEN=token -e UPDATER_WAIT=1800000 vki-bot
 ```
 ## Использование
 
