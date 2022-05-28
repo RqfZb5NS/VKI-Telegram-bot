@@ -5,7 +5,7 @@ namespace VKI_Telegram_bot;
 public static class Program
 {
     public static CancellationTokenSource cts = new();
-    public static TelegramBotClient? tb = new(AppSettings.Settings.BotApiKey);
+    public static TelegramBotClient? tb = new(Environment.GetEnvironmentVariable("TELEGRAM_TOKEN"));
 
     public static async Task Main()
     {

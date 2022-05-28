@@ -9,8 +9,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="AppSettings.cs" />
     <Compile Remove="Data.cs" />
     <Compile Remove="Parsers\ci_nsu_ru\Iertification.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="appsettings.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Dockerfile" />
   </ItemGroup>
 
   <ItemGroup>
@@ -22,7 +31,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="appsettings.json">
+    <Compile Update="Handlers.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Dockerfile">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="nlog.config">

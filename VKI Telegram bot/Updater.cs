@@ -28,7 +28,8 @@ namespace VKI_Telegram_bot
                     await Update(schedule, "Расписание звонков обновилось");
                     Log.Info("Парсеры обновлены");
                     //Console.WriteLine("Парсеры обновлены");
-                    ctn.WaitHandle.WaitOne(AppSettings.Settings.UpdaterAwait);
+                    //ctn.WaitHandle.WaitOne(Convert.ToInt32(Environment.GetEnvironmentVariable("UPDATER_AWAIT")));
+                    ctn.WaitHandle.WaitOne(Convert.ToInt32(Environment.GetEnvironmentVariable("UPDATER_WAIT")));
                 }
             }
             catch (Exception ex)
