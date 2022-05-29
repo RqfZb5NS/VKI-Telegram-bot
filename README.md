@@ -2,6 +2,7 @@
 
 Данный бот используется для получения расписания занятий учебного заведения ВКИ НГУ путём парсинга данных с сайта.
 
+[Docker Hub](https://hub.docker.com/r/hiter67/vki-telegram-bot)
 ## Установка
 Скачиваем Docker image
 ```
@@ -9,7 +10,7 @@ $ docker pull hiter67/vki-telegram-bot
 ```
 Создаём Docker contanier с нужными параметрами
 ```
-$ docker run -it --name vki-bot-test -e TELEGRAM_TOKEN=token -e UPDATER_WAIT=1800000 vki-bot
+$  run -it --name <имя контейнера> -e TELEGRAM_TOKEN=<токен> -e UPDATER_WAIT=1800000 -v <путь>:/app/data hiter67/vki-telegram-bot
 ```
 ## Использование
 
