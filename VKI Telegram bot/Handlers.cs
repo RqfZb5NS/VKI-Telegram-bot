@@ -61,20 +61,12 @@ namespace VKI_Telegram_bot
             Log.Info($"Id: {message.Chat.Id}, Text: {message.Text}");
             using(DataBaseContext db = new DataBaseContext())
             {
-                if (db.Users.Find(message.Chat.Id) != null)
-                {
-                    if (db.Users.Find(message.Chat.Id)!.BlackList)
-                    {
-                        return;
-                    }
-                }
-                else
+                if (db.Users.Find(message.Chat.Id) == null)
                 {
                     await db.Users.AddAsync(new User
                     {
                         Id = message.Chat.Id,
-                        Name = $"{message.Chat.FirstName} {message.Chat.LastName}",
-                        BlackList = false,
+                        Name = $"{message.Chat.FirstName} {message.Chat.LastName}"
                     });
                     await db.SaveChangesAsync();
                 }
@@ -107,20 +99,12 @@ namespace VKI_Telegram_bot
             Log.Info($"Id: {callbackQuery.Message!.Chat.Id}, Text: {callbackQuery.Data}");
             using (DataBaseContext db = new DataBaseContext())
             {
-                if (db.Users.Find(callbackQuery.Message!.Chat.Id) != null)
-                {
-                    if (db.Users.Find(callbackQuery.Message.Chat.Id)!.BlackList)
-                    {
-                        return;
-                    }
-                }
-                else
+                if (db.Users.Find(callbackQuery.Message!.Chat.Id) == null)
                 {
                     await db.Users.AddAsync(new User
                     {
                         Id = callbackQuery.Message.Chat.Id,
-                        Name = $"{callbackQuery.Message.Chat.FirstName} {callbackQuery.Message.Chat.LastName}",
-                        BlackList = false,
+                        Name = $"{callbackQuery.Message.Chat.FirstName} {callbackQuery.Message.Chat.LastName}"
                     });
                     await db.SaveChangesAsync();
                 }
