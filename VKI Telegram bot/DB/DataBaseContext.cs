@@ -16,7 +16,7 @@ namespace VKI_Telegram_bot.DB
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlite("Data Source=DataBase.db");
+            optionsBuilder.UseSqlite("Data Source=data/db.db");
         }
     }
 }
