@@ -9,7 +9,7 @@ $ docker pull hiter67/vki-telegram-bot
 ```
 Создаём Docker contanier с нужными параметрами
 ```
-$ docker run -it --name vki-bot-test -e TELEGRAM_TOKEN=token -e UPDATER_WAIT=1800000 vki-bot
+$  run -it --name <имя контейнера> -e TELEGRAM_TOKEN=<токен бота> -e UPDATER_WAIT=1800000 -v <путь к папке>:/app/data hiter67/vki-telegram-bot
 ```
 ## Использование
 
